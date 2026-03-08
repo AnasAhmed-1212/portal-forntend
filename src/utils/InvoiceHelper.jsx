@@ -124,7 +124,7 @@ export const InvoiceButtons = ({ _id, onInvoicePublished }) => {
       throw new Error("FBR token not found for this invoice seller.");
     }
 
-    const fbrRes = await axios.post("https://gw.fbr.gov.pk/di_data/v1/di/postinvoicedata_sb", fbrPayload, {
+    const fbrRes = await axios.post("https://gw.fbr.gov.pk/di_data/v1/di/postinvoicedata", fbrPayload, {
       headers: {
         Authorization: `Bearer ${fbrToken}`,
         "content-type": "application/json",
