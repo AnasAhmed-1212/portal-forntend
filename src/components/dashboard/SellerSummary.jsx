@@ -82,7 +82,7 @@ const SellerSummary = () => {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Welcome back, {user?.name || "Seller"}!</h1>
+        <h1 className="text-3xl font-bold text-slate-900">Welcome back, {user?.name || "Seller"}!</h1>
         <p className="text-sm text-slate-500 mt-1">Your seller account dashboard is updated dynamically.</p>
         {user?.sellerId && (
           <p className="text-sm text-blue-600 mt-1">Business: {user.sellerId.sellerBusinessName || "Your Company"}</p>

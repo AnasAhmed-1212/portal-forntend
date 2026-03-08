@@ -347,13 +347,9 @@ const AddInvoice = () => {
         });
         alert("Invoice updated successfully");
       } else {
-        const response = await axios.post("https://gw.fbr.gov.pk/di_data/v1/di/validateinvoicedata_sb", fbrPayload, {
-          headers: { Authorization: `Bearer ${FBR_TOKEN}`, "content-type": "application/json" },
-        });
         await axios.post("https://portal-backend-dun.vercel.app/api/create/items", localPayload, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
-        alert(`FBR Response: ${response.data.message || "Invoice validated to FBR"}`);
         alert("Invoice saved successfully");
       }
       navigate(invoiceListPath);
