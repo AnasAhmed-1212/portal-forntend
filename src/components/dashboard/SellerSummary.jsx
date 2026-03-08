@@ -55,8 +55,26 @@ const SellerSummary = () => {
 
   if (loading) {
     return (
-      <div className="p-6 flex items-center justify-center h-64">
-        <div className="text-slate-500">Loading dashboard...</div>
+      <div className="p-6 animate-pulse" aria-live="polite" aria-busy="true">
+        <div className="mb-6">
+          <div className="h-8 w-72 bg-slate-200 rounded-lg mb-3"></div>
+          <div className="h-4 w-64 bg-slate-200 rounded"></div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6 mb-6">
+          <div className="h-28 rounded-2xl bg-slate-200"></div>
+          <div className="h-28 rounded-2xl bg-slate-200"></div>
+          <div className="h-28 rounded-2xl bg-slate-200"></div>
+        </div>
+
+        <div className="h-72 rounded-2xl bg-slate-200 mb-6"></div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="h-56 rounded-2xl bg-slate-200"></div>
+          <div className="h-56 rounded-2xl bg-slate-200"></div>
+        </div>
+
+        <p className="mt-6 text-sm text-slate-500">Loading seller dashboard...</p>
       </div>
     );
   }
@@ -143,4 +161,3 @@ const SellerSummary = () => {
 };
 
 export default SellerSummary;
-
