@@ -49,7 +49,7 @@ const Navbar = ({ setSidebarOpen }) => {
       </button>
 
       {/* Welcome Message - Mobile Center */}
-      <div className="absolute inset-x-0 text-center md:hidden pointer-events-none">
+      <div className="absolute left-1/2 -translate-x-[59%] text-center md:hidden pointer-events-none">
         <p className="text-[11px] text-slate-300 leading-3">Welcome back,</p>
         <p className="text-sm font-semibold text-white leading-5">{user?.name || "User"}</p>
       </div>

@@ -1,37 +1,59 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import SummaryCard from "./SummaryCard";
-import RevenueChart from "./RevenueChart";
-import { FaDollarSign, FaFileInvoice, FaFileInvoiceDollar } from "react-icons/fa";
+import { FaFileInvoice, FaFileInvoiceDollar, FaStore, FaUserCheck, FaUsers } from "react-icons/fa";
 
 const AdminSummary = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
-    totalRevenue: 0,
     unpublishedInvoices: 0,
     publishedInvoices: 0,
     totalInvoices: 0,
-    revenueSeries: [],
+    totalSellers: 0,
+    totalUsers: 0,
+    activeUsers: 0,
   });
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("https://portal-backend-dun.vercel.app/api/create/stats/dashboard", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const headers = { Authorization: `Bearer ${token}` };
 
-        if (response.data.success) {
-          const data = response.data.data;
-          setStats({
-            totalRevenue: data.totalRevenue || 0,
-            unpublishedInvoices: data.unpublishedInvoices || 0,
-            publishedInvoices: data.publishedInvoices || 0,
-            totalInvoices: data.totalInvoices || 0,
-            revenueSeries: data.revenueSeries || [],
-          });
+        const [dashboardRes, usersRes, sellersRes] = await Promise.allSettled([
+          axios.get("https://portal-backend-dun.vercel.app/api/create/stats/dashboard", { headers }),
+          axios.get("https://portal-backend-dun.vercel.app/api/user/all", { headers }),
+          axios.get("https://portal-backend-dun.vercel.app/api/seller/", { headers }),
+        ]);
+
+        const nextStats = {
+          unpublishedInvoices: 0,
+          publishedInvoices: 0,
+          totalInvoices: 0,
+          totalSellers: 0,
+          totalUsers: 0,
+          activeUsers: 0,
+        };
+
+        if (dashboardRes.status === "fulfilled" && dashboardRes.value.data?.success) {
+          const data = dashboardRes.value.data.data;
+          nextStats.unpublishedInvoices = data.unpublishedInvoices || 0;
+          nextStats.publishedInvoices = data.publishedInvoices || 0;
+          nextStats.totalInvoices = data.totalInvoices || 0;
         }
+
+        if (usersRes.status === "fulfilled" && usersRes.value.data?.success) {
+          const users = usersRes.value.data.data || [];
+          nextStats.totalUsers = users.length;
+          nextStats.activeUsers = users.filter((user) => user?.isActive).length;
+        }
+
+        if (sellersRes.status === "fulfilled" && sellersRes.value.data?.success) {
+          const sellers = sellersRes.value.data.data || [];
+          nextStats.totalSellers = sellers.length;
+        }
+
+        setStats(nextStats);
       } catch (error) {
         console.error("Error loading admin dashboard stats:", error);
       } finally {
@@ -55,7 +77,7 @@ const AdminSummary = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h3 className="text-2xl lg:text-3xl font-extrabold text-slate-900">Dashboard Overview</h3>
-          <p className="text-sm text-slate-500 mt-1">Revenue and invoice publishing status</p>
+          <p className="text-sm text-slate-500 mt-1">Invoices, sellers and user activity</p>
         </div>
         <div className="text-sm text-slate-500">
           Total invoices: <span className="font-semibold text-slate-700">{stats.totalInvoices}</span>
@@ -63,12 +85,6 @@ const AdminSummary = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6 mb-6">
-        <SummaryCard
-          icon={<FaDollarSign className="text-white text-2xl" />}
-          text="Total Revenue"
-          number={`PKR ${Number(stats.totalRevenue || 0).toLocaleString()}`}
-          bgColor="bg-gradient-to-br from-yellow-500 to-amber-600"
-        />
         <SummaryCard
           icon={<FaFileInvoice className="text-white text-2xl" />}
           text="Invoices Not Published"
@@ -81,18 +97,27 @@ const AdminSummary = () => {
           number={stats.publishedInvoices}
           bgColor="bg-gradient-to-br from-red-500 to-rose-600"
         />
-      </div>
-
-      <div className="bg-white rounded-2xl shadow-lg p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="text-lg font-semibold text-slate-800">Revenue Chart</h4>
-          <div className="text-sm text-slate-500">Last 6 months</div>
-        </div>
-        <RevenueChart series={stats.revenueSeries} />
+        <SummaryCard
+          icon={<FaStore className="text-white text-2xl" />}
+          text="Total Sellers"
+          number={stats.totalSellers}
+          bgColor="bg-gradient-to-br from-indigo-500 to-violet-600"
+        />
+        <SummaryCard
+          icon={<FaUsers className="text-white text-2xl" />}
+          text="Total Users"
+          number={stats.totalUsers}
+          bgColor="bg-gradient-to-br from-cyan-500 to-sky-600"
+        />
+        <SummaryCard
+          icon={<FaUserCheck className="text-white text-2xl" />}
+          text="Active Users"
+          number={stats.activeUsers}
+          bgColor="bg-gradient-to-br from-green-500 to-emerald-600"
+        />
       </div>
     </div>
   );
 };
 
 export default AdminSummary;
-
