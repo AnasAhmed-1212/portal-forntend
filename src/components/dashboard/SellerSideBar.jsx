@@ -1,5 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import logo from "../../assets/logo.png";
 import {
   FaTachometerAlt,
   FaPeopleCarry,
@@ -42,8 +43,8 @@ const SellerSideBar = ({ isOpen, setIsOpen }) => {
 
         {/* Logo */}
         <div className="px-6 py-5 flex items-center gap-3 border-b border-slate-700">
-          <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-            <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 12h18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center p-1.5">
+            <img src={logo} alt="Fileredge logo" className="h-full w-full object-contain" />
           </div>
           <div>
             <div className="text-lg font-semibold">Fileredge</div>

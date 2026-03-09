@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/authContext.jsx";
 import { useNavigate } from "react-router-dom";
+import logo from "../assets/logo.png";
 
 
 const Login = () => {
@@ -44,8 +45,10 @@ const Login = () => {
                     {/* Left artwork / info */}
                     <div className="hidden md:flex flex-col items-center justify-center gap-4 bg-gradient-to-br from-blue-600 to-purple-600 text-white p-8">
                         <div className="text-4xl font-extrabold">Fileredge</div>
-                        <p className="text-sm opacity-90 max-w-xs text-center">Smart invoicing and employee management — secure, fast, and simple.</p>
-                        <div className="w-48 h-48 bg-white/10 rounded-2xl flex items-center justify-center">LOGO</div>
+                        <p className="text-sm opacity-90 max-w-xs text-center">Smart Digital invoicing secure, fast, and simple.</p>
+                        <div className="w-48 h-48 bg-white/10 rounded-2xl flex items-center justify-center p-6">
+                            <img src={logo} alt="Fileredge logo" className="max-h-full max-w-full object-contain" />
+                        </div>
                     </div>
 
                     {/* Right: form */}
