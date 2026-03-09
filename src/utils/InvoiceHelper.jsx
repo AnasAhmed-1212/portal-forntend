@@ -67,12 +67,15 @@ export const InvoiceButtons = ({ _id, onInvoicePublished }) => {
     fetchData();
   }, [_id]);
 
+  const normalizeRegistrationNumber = (value) => String(value || "").replace(/\D/g, "");
+  const isValidSellerRegistrationNumber = (value) => value.length === 7 || value.length === 13;
+
   const buildFbrPayload = (sourceInvoice) => ({
     invoiceType: sourceInvoice.invoiceType,
     invoiceDate: sourceInvoice.invoiceDate,
     sellerBusinessName: sourceInvoice.sellerBusinessName,
     sellerProvince: sourceInvoice.sellerProvince,
-    sellerNTNCNIC: sourceInvoice.sellerNTNCNIC,
+    sellerNTNCNIC: normalizeRegistrationNumber(sourceInvoice.sellerNTNCNIC),
     sellerAddress: sourceInvoice.sellerAddress,
     buyerNTNCNIC: sourceInvoice.buyerNTNCNIC,
     buyerBusinessName: sourceInvoice.buyerBusinessName,
@@ -102,26 +105,44 @@ export const InvoiceButtons = ({ _id, onInvoicePublished }) => {
     })),
   });
 
-  const getFbrTokenForInvoice = async () => {
+  const getSellerAuthForInvoice = async () => {
+    const fallbackSellerNtn = normalizeRegistrationNumber(invoice?.sellerNTNCNIC);
+
     if (user?.role !== "admin") {
-      return user?.sellerId?.fbrToken || "";
+      const sellerFromUser = user?.sellerId || {};
+      return {
+        fbrToken: sellerFromUser?.fbrToken || "",
+        sellerNTNCNIC: normalizeRegistrationNumber(sellerFromUser?.sellerNTNCNIC || fallbackSellerNtn),
+      };
     }
 
     const sellerId = invoice?.sellerId?._id || invoice?.sellerId;
-    if (!sellerId) return "";
+    if (!sellerId) {
+      return { fbrToken: "", sellerNTNCNIC: fallbackSellerNtn };
+    }
 
     const response = await axios.get(`https://portal-backend-dun.vercel.app/api/seller/${sellerId}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     });
-    return response?.data?.data?.fbrToken || "";
+
+    return {
+      fbrToken: response?.data?.data?.fbrToken || "",
+      sellerNTNCNIC: normalizeRegistrationNumber(response?.data?.data?.sellerNTNCNIC || fallbackSellerNtn),
+    };
   };
 
   const publishFromFrontendFallback = async (payloadFromServer = null) => {
-    const fbrPayload = payloadFromServer || buildFbrPayload(invoice);
-    const fbrToken = await getFbrTokenForInvoice();
+    const sellerAuth = await getSellerAuthForInvoice();
+    const fbrPayload = { ...(payloadFromServer || buildFbrPayload(invoice)) };
+    fbrPayload.sellerNTNCNIC = sellerAuth.sellerNTNCNIC || normalizeRegistrationNumber(fbrPayload.sellerNTNCNIC);
+
+    const fbrToken = sellerAuth.fbrToken;
 
     if (!fbrToken) {
       throw new Error("FBR token not found for this invoice seller.");
+    }
+    if (!isValidSellerRegistrationNumber(fbrPayload.sellerNTNCNIC)) {
+      throw new Error("Seller NTN/CNIC must be exactly 7 digits (NTN) or 13 digits (CNIC). Update seller profile and try again.");
     }
 
     const fbrRes = await axios.post("https://gw.fbr.gov.pk/di_data/v1/di/postinvoicedata", fbrPayload, {
@@ -163,13 +184,21 @@ export const InvoiceButtons = ({ _id, onInvoicePublished }) => {
       }
     } catch (error) {
       const apiError = error.response?.data;
+      const statusCode = String(apiError?.fbrResponse?.validationResponse?.statusCode || "");
+      const validationErrorCode = String(apiError?.fbrResponse?.validationResponse?.errorCode || "");
+      const fbrErrorText = String(apiError?.fbrResponse?.validationResponse?.error || "").toLowerCase();
       const isFetchFailure =
         String(apiError?.error || "").toLowerCase().includes("failed to reach fbr api") ||
         String(apiError?.validationError || "").toLowerCase().includes("fetch failed");
+      const isSellerAuthMismatch =
+        (statusCode === "01" || validationErrorCode === "0401") &&
+        (validationErrorCode === "0401" ||
+          fbrErrorText.includes("authorized token does not exist against seller registration number") ||
+          fbrErrorText.includes("provided seller registration number is not 13 digits"));
 
-      if (isFetchFailure) {
+      if (isFetchFailure || isSellerAuthMismatch) {
         try {
-          const fallbackResult = await publishFromFrontendFallback(apiError?.requestPayload || null);
+          const fallbackResult = await publishFromFrontendFallback(apiError?.requestPayload || buildFbrPayload(invoice));
           setStatus("Published");
           if (typeof onInvoicePublished === "function") {
             onInvoicePublished(_id);
