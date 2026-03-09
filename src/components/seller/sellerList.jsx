@@ -225,14 +225,21 @@ const SellerList = () => {
 
       {/* Table */}
       <div className="bg-white p-4 rounded-xl shadow-sm overflow-hidden">
-        <DataTable
-          columns={columns}
-          data={filteredSellers}
-          pagination
-          progressPending={loading}
-          highlightOnHover
-          responsive
-        />
+        {loading ? (
+          <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 text-slate-500">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+            <p className="text-sm font-medium">Loading sellers...</p>
+          </div>
+        ) : (
+          <DataTable
+            columns={columns}
+            data={filteredSellers}
+            pagination
+            highlightOnHover
+            responsive
+            noDataComponent={<div className="py-8 text-slate-500">No sellers found.</div>}
+          />
+        )}
       </div>
     </div>
   );
