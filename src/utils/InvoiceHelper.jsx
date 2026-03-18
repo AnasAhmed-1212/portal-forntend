@@ -60,7 +60,13 @@ export const invoiceColumns = [
   },
   { name: "Scenario", selector: (row) => row.scenarioId },
   { name: "Amount", selector: (row) => row.amount, right: true },
-  { name: "Action", selector: (row) => row.action, center: true, width: "170px" },
+  {
+    name: "Action",
+    selector: (row) => row.action,
+    center: true,
+    minWidth: "260px",
+    grow: 2,
+  },
 ];
 
 export const InvoiceButtons = ({ _id, isPublished = false, onInvoicePublished }) => {
@@ -291,7 +297,7 @@ export const InvoiceButtons = ({ _id, isPublished = false, onInvoicePublished })
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex min-w-[240px] items-center justify-center gap-2 whitespace-nowrap">
       {status === "Published" && (
         <button
           onClick={() => navigate(viewPath)}
