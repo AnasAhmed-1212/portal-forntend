@@ -7,11 +7,37 @@ import { customTableStyles } from "../../utils/tableStyles";
 import { FaPlus, FaFileExport, FaSearch } from "react-icons/fa";
 import { useAuth } from "../../context/authContext";
 
+const REMOTE_API_BASE_URL = "https://portal-backend-dun.vercel.app";
+const API_BASE_URLS = [...new Set([import.meta.env.VITE_API_URL, REMOTE_API_BASE_URL].filter(Boolean))];
+
+const shouldFallbackToNextBase = (error) => {
+  const status = error?.response?.status;
+  return !error?.response || status === 404 || status >= 500;
+};
+
+const requestWithFallback = async (requestFactory) => {
+  let lastError;
+
+  for (const baseUrl of API_BASE_URLS) {
+    try {
+      return await requestFactory(baseUrl);
+    } catch (error) {
+      lastError = error;
+      if (!shouldFallbackToNextBase(error) || baseUrl === API_BASE_URLS[API_BASE_URLS.length - 1]) {
+        throw error;
+      }
+    }
+  }
+
+  throw lastError;
+};
+
 const InvoiceList = () => {
   const { user } = useAuth();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filtered, setFiltered] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const isAdmin = user?.role === "admin";
   const addInvoicePath = isAdmin ? "/admin-dashboard/invoice/add" : "/seller-dashboard/invoice/add";
@@ -19,9 +45,12 @@ const InvoiceList = () => {
   const fetchInvoices = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get("https://portal-backend-dun.vercel.app/api/create/", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      setErrorMessage("");
+      const response = await requestWithFallback((baseUrl) =>
+        axios.get(`${baseUrl}/api/create/`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        })
+      );
 
       if (response.data.success) {
         const data = (response.data.data || []).map((inv, index) => {
@@ -39,7 +68,7 @@ const InvoiceList = () => {
             amount: totalAmount.toFixed(2),
             scenarioId: inv.scenarioId || "N/A",
             status: inv.isPublished ? "Published" : "Pending",
-            action: <InvoiceButtons _id={inv._id} onInvoicePublished={fetchInvoices} />,
+            action: <InvoiceButtons _id={inv._id} isPublished={inv.isPublished} onInvoicePublished={fetchInvoices} />,
           };
         });
         setInvoices(data);
@@ -47,6 +76,9 @@ const InvoiceList = () => {
       }
     } catch (error) {
       console.error("Fetch Error:", error);
+      setInvoices([]);
+      setFiltered([]);
+      setErrorMessage(error.response?.data?.error || error.response?.data?.message || "Unable to load invoices right now.");
     } finally {
       setLoading(false);
     }
@@ -142,6 +174,11 @@ const InvoiceList = () => {
               data={filtered}
               pagination
               progressPending={loading}
+              noDataComponent={
+                <div className="py-10 text-center text-slate-500">
+                  {errorMessage || "There are no records to display"}
+                </div>
+              }
               progressComponent={
                 <div className="p-20 text-blue-600 font-bold flex flex-col items-center gap-2">
                   <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>

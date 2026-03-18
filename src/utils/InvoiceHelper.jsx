@@ -3,6 +3,31 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 
+const REMOTE_API_BASE_URL = "https://portal-backend-dun.vercel.app";
+const API_BASE_URLS = [...new Set([import.meta.env.VITE_API_URL, REMOTE_API_BASE_URL].filter(Boolean))];
+
+const shouldFallbackToNextBase = (error) => {
+  const status = error?.response?.status;
+  return !error?.response || status === 404 || status >= 500;
+};
+
+const requestWithFallback = async (requestFactory) => {
+  let lastError;
+
+  for (const baseUrl of API_BASE_URLS) {
+    try {
+      return await requestFactory(baseUrl);
+    } catch (error) {
+      lastError = error;
+      if (!shouldFallbackToNextBase(error) || baseUrl === API_BASE_URLS[API_BASE_URLS.length - 1]) {
+        throw error;
+      }
+    }
+  }
+
+  throw lastError;
+};
+
 /* ==============================
    TABLE COLUMNS FOR INVOICE
 ================================ */
@@ -38,22 +63,29 @@ export const invoiceColumns = [
   { name: "Action", selector: (row) => row.action, center: true, width: "170px" },
 ];
 
-export const InvoiceButtons = ({ _id, onInvoicePublished }) => {
+export const InvoiceButtons = ({ _id, isPublished = false, onInvoicePublished }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [invoice, setInvoice] = useState(null);
-  const [status, setStatus] = useState("Pending");
+  const [status, setStatus] = useState(isPublished ? "Published" : "Pending");
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const isAdmin = user?.role === "admin";
   const viewPath = isAdmin ? `/admin-dashboard/invoice/view/${_id}` : `/seller-dashboard/invoice/view/${_id}`;
   const editPath = isAdmin ? `/admin-dashboard/invoice/edit/${_id}` : `/seller-dashboard/invoice/edit/${_id}`;
 
   useEffect(() => {
+    setStatus(isPublished ? "Published" : "Pending");
+  }, [isPublished]);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const headers = { Authorization: `Bearer ${localStorage.getItem("token")}` };
-        const response = await axios.get(`https://portal-backend-dun.vercel.app/api/create/${_id}`, { headers });
+        const response = await requestWithFallback((baseUrl) =>
+          axios.get(`${baseUrl}/api/create/${_id}`, { headers })
+        );
 
         if (response.data.success) {
           const fetchedInvoice = response.data.data;
@@ -121,9 +153,11 @@ export const InvoiceButtons = ({ _id, onInvoicePublished }) => {
       return { fbrToken: "", sellerNTNCNIC: fallbackSellerNtn };
     }
 
-    const response = await axios.get(`https://portal-backend-dun.vercel.app/api/seller/${sellerId}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
+    const response = await requestWithFallback((baseUrl) =>
+      axios.get(`${baseUrl}/api/seller/${sellerId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+    );
 
     return {
       fbrToken: response?.data?.data?.fbrToken || "",
@@ -152,10 +186,12 @@ export const InvoiceButtons = ({ _id, onInvoicePublished }) => {
       },
     });
 
-    await axios.post(
-      `https://portal-backend-dun.vercel.app/api/create/${_id}/mark-published`,
-      { fbrResponse: fbrRes.data, requestPayload: fbrPayload },
-      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+    await requestWithFallback((baseUrl) =>
+      axios.post(
+        `${baseUrl}/api/create/${_id}/mark-published`,
+        { fbrResponse: fbrRes.data, requestPayload: fbrPayload },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      )
     );
 
     return { fbrResponse: fbrRes.data, requestPayload: fbrPayload };
@@ -166,12 +202,14 @@ export const InvoiceButtons = ({ _id, onInvoicePublished }) => {
 
     setLoading(true);
     try {
-      const response = await axios.post(
-        `https://portal-backend-dun.vercel.app/api/create/${_id}/publish`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+      const response = await requestWithFallback((baseUrl) =>
+        axios.post(
+          `${baseUrl}/api/create/${_id}/publish`,
+          {},
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }
+        )
       );
 
       if (response.data.success) {
@@ -228,6 +266,30 @@ export const InvoiceButtons = ({ _id, onInvoicePublished }) => {
     }
   };
 
+  const handleDelete = async () => {
+    if (status === "Published") return;
+
+    const confirmDelete = window.confirm("Are you sure you want to delete this invoice?");
+    if (!confirmDelete) return;
+
+    setDeleting(true);
+    try {
+      const response = await requestWithFallback((baseUrl) =>
+        axios.delete(`${baseUrl}/api/create/${_id}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        })
+      );
+
+      if (response.data.success && typeof onInvoicePublished === "function") {
+        onInvoicePublished(_id);
+      }
+    } catch (error) {
+      alert(error.response?.data?.error || error.response?.data?.message || `Delete failed (${error.response?.status || "network error"})`);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <div className="flex items-center gap-2">
       {status === "Published" && (
@@ -252,10 +314,23 @@ export const InvoiceButtons = ({ _id, onInvoicePublished }) => {
 
       {status !== "Published" && (
         <button
-          onClick={handleSubmit}
-          disabled={loading}
+          onClick={handleDelete}
+          disabled={deleting}
           className={`px-3 py-1 text-sm font-semibold rounded-lg transition-colors ${
-            loading ? "bg-gray-300 text-gray-500" : "bg-blue-600 text-white hover:bg-blue-700"
+            deleting ? "bg-red-200 text-red-500" : "bg-red-100 text-red-700 hover:bg-red-200"
+          }`}
+          title="Delete Invoice"
+        >
+          {deleting ? "Deleting..." : "Delete"}
+        </button>
+      )}
+
+      {status !== "Published" && (
+        <button
+          onClick={handleSubmit}
+          disabled={loading || deleting}
+          className={`px-3 py-1 text-sm font-semibold rounded-lg transition-colors ${
+            loading || deleting ? "bg-gray-300 text-gray-500" : "bg-blue-600 text-white hover:bg-blue-700"
           }`}
         >
           {loading ? "Publishing..." : "Publish"}
