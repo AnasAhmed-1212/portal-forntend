@@ -61,7 +61,7 @@ const InvoiceList = () => {
             ...inv,
             sno: index + 1,
             invoicesId: inv._id,
-            invoiceNumber: inv.invoiceNumber || inv?.fbrResponse?.invoiceNumber || "",
+            invoiceNumber: inv.isPublished ? inv.invoiceNumber || inv?.fbrResponse?.invoiceNumber || "N/A" : "",
             qrValue: inv.invoiceNumber || inv?.fbrResponse?.invoiceNumber || inv._id,
             buyerBusinessName: inv.buyerBusinessName || "N/A",
             invoiceDate: inv.invoiceDate ? new Date(inv.invoiceDate).toLocaleDateString("en-GB") : "N/A",
@@ -95,6 +95,7 @@ const InvoiceList = () => {
         inv.invoiceType?.toLowerCase().includes(value) ||
         inv.buyerBusinessName?.toLowerCase().includes(value) ||
         inv.scenarioId?.toLowerCase().includes(value) ||
+        inv.invoiceNumber?.toLowerCase().includes(value) ||
         inv.invoicesId?.toLowerCase().includes(value)
     );
     setFiltered(filteredList);

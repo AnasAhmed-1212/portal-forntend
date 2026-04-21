@@ -43,6 +43,17 @@ export const invoiceColumns = [
     },
   },
   { name: "Invoice ID", selector: (row) => row.invoicesId, sortable: true },
+  {
+    name: "Invoice Number",
+    selector: (row) => row.invoiceNumber,
+    sortable: true,
+    minWidth: "160px",
+    cell: (row) => (
+      <span className={`text-sm ${row.status === "Published" && row.invoiceNumber ? "font-semibold text-slate-700" : "text-slate-300"}`}>
+        {row.status === "Published" && row.invoiceNumber ? row.invoiceNumber : ""}
+      </span>
+    ),
+  },
   { name: "Buyer", selector: (row) => row.buyerBusinessName, sortable: true },
   { name: "Date", selector: (row) => row.invoiceDate, sortable: true },
   {
