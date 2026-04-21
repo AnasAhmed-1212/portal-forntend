@@ -71,6 +71,11 @@ const AddInvoice = () => {
     return availableItems.filter((item) => String(item.sellerId) === String(selectedSellerId));
   }, [availableItems, isAdmin, selectedSellerId]);
 
+  const selectedBuyer = useMemo(
+    () => scopedBuyers.find((buyer) => buyer._id === invoice.buyerId) || null,
+    [scopedBuyers, invoice.buyerId]
+  );
+  
   const itemOptions = useMemo(
     () =>
       scopedItems.map((i) => ({
@@ -288,7 +293,6 @@ const AddInvoice = () => {
     if (!seller || !invoice.buyerId) return alert("Missing Seller or Buyer info");
     if (!seller.isActive) return alert("Selected seller is inactive. Please activate seller first.");
 
-    const selectedBuyer = scopedBuyers.find((b) => b._id === invoice.buyerId);
     if (!selectedBuyer) return alert("Selected buyer is invalid for this seller.");
 
     const fbrPayload = {
@@ -384,19 +388,28 @@ const AddInvoice = () => {
             </div>
             <div>
               <label className="text-xs font-bold text-slate-500 uppercase">Buyer</label>
-              <select
-                required
-                className="w-full mt-1 p-2 lg:p-3 border border-slate-300 rounded-lg text-sm"
-                value={invoice.buyerId}
-                onChange={(e) => setInvoice({ ...invoice, buyerId: e.target.value })}
-              >
-                <option value="">Select a Buyer</option>
-                {scopedBuyers.map((b) => (
-                  <option key={b._id} value={b._id}>
-                    {b.buyerName}
-                  </option>
-                ))}
-              </select>
+              <div className="mt-1 space-y-2">
+                <select
+                  required
+                  className="w-full p-2 lg:p-3 border border-slate-300 rounded-lg text-sm"
+                  value={invoice.buyerId}
+                  onChange={(e) => setInvoice({ ...invoice, buyerId: e.target.value })}
+                >
+                  <option value="">Select a Buyer</option>
+                  {scopedBuyers.map((b) => (
+                    <option key={b._id} value={b._id}>
+                      {b.buyerName}
+                    </option>
+                  ))}
+                </select>
+
+                <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                  <span className="block text-[11px] font-bold uppercase tracking-wide text-slate-400">Buyer NTN</span>
+                  <span className="mt-0.5 block text-sm font-medium text-slate-700 break-all">
+                    {selectedBuyer?.ntnNumber || "Select a buyer"}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
