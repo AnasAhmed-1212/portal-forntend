@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 
 const REMOTE_API_BASE_URL = "https://portal-backend-dun.vercel.app";
-const API_BASE_URLS = [...new Set([import.meta.env.VITE_API_URL, REMOTE_API_BASE_URL].filter(Boolean))];
+const LOCAL_API_BASE_URL = "http://localhost:2703";
+const API_BASE_URLS = [...new Set([import.meta.env.VITE_API_URL, LOCAL_API_BASE_URL, REMOTE_API_BASE_URL].filter(Boolean))];
 
 const shouldFallbackToNextBase = (error) => {
   const status = error?.response?.status;
@@ -73,10 +74,12 @@ export const invoiceColumns = [
   { name: "Amount", selector: (row) => row.amount, right: true },
   {
     name: "Action",
-    selector: (row) => row.action,
+    cell: (row) => row.action,
     center: true,
-    minWidth: "260px",
-    grow: 2,
+    width: "220px",
+    minWidth: "220px",
+    allowOverflow: true,
+    ignoreRowClick: true,
   },
 ];
 
@@ -118,6 +121,11 @@ export const InvoiceButtons = ({ _id, isPublished = false, onInvoicePublished })
 
   const normalizeRegistrationNumber = (value) => String(value || "").replace(/\D/g, "");
   const isValidSellerRegistrationNumber = (value) => value.length === 7 || value.length === 13;
+  const formatTaxRate = (value) => {
+    const rate = String(value ?? "").trim();
+    if (!rate) return "0%";
+    return rate.includes("%") || rate.toLowerCase() === "exempt" ? rate : `${rate}%`;
+  };
 
   const buildFbrPayload = (sourceInvoice) => ({
     invoiceType: sourceInvoice.invoiceType,
@@ -126,7 +134,7 @@ export const InvoiceButtons = ({ _id, isPublished = false, onInvoicePublished })
     sellerProvince: sourceInvoice.sellerProvince,
     sellerNTNCNIC: normalizeRegistrationNumber(sourceInvoice.sellerNTNCNIC),
     sellerAddress: sourceInvoice.sellerAddress,
-    buyerNTNCNIC: sourceInvoice.buyerNTNCNIC,
+    buyerNTNCNIC: normalizeRegistrationNumber(sourceInvoice.buyerNTNCNIC),
     buyerBusinessName: sourceInvoice.buyerBusinessName,
     buyerProvince: sourceInvoice.buyerProvince,
     buyerAddress: sourceInvoice.buyerAddress,
@@ -136,15 +144,15 @@ export const InvoiceButtons = ({ _id, isPublished = false, onInvoicePublished })
     items: (sourceInvoice.items || []).map((item) => ({
       hsCode: item.hsCode,
       productDescription: item.productDescription,
-      rate: item.rate,
+      rate: formatTaxRate(item.rate),
       uoM: item.uoM,
       quantity: Number(item.quantity),
-      totalValues: Number(item.totalValues),
+      totalValues: 0,
       valueSalesExcludingST: Number(item.valueSalesExcludingST),
       fixedNotifiedValueOrRetailPrice: Number(item.fixedNotifiedValueOrRetailPrice || 0),
       salesTaxApplicable: Number(item.salesTaxApplicable || 0),
       salesTaxWithheldAtSource: Number(item.salesTaxWithheldAtSource || 0),
-      extraTax: item.extraTax || "",
+      extraTax: Number(item.extraTax || 0),
       furtherTax: Number(item.furtherTax || 0),
       sroScheduleNo: item.sroScheduleNo || "",
       fedPayable: Number(item.fedPayable || 0),
@@ -196,7 +204,7 @@ export const InvoiceButtons = ({ _id, isPublished = false, onInvoicePublished })
       throw new Error("Seller NTN/CNIC must be exactly 7 digits (NTN) or 13 digits (CNIC). Update seller profile and try again.");
     }
 
-    const fbrRes = await axios.post("https://gw.fbr.gov.pk/di_data/v1/di/postinvoicedata", fbrPayload, {
+    const fbrRes = await axios.post("https://gw.fbr.gov.pk/di_data/v1/di/postinvoicedata_sb", fbrPayload, {
       headers: {
         Authorization: `Bearer ${fbrToken}`,
         "content-type": "application/json",
@@ -284,8 +292,6 @@ export const InvoiceButtons = ({ _id, isPublished = false, onInvoicePublished })
   };
 
   const handleDelete = async () => {
-    if (status === "Published") return;
-
     const confirmDelete = window.confirm("Are you sure you want to delete this invoice?");
     if (!confirmDelete) return;
 
@@ -308,11 +314,11 @@ export const InvoiceButtons = ({ _id, isPublished = false, onInvoicePublished })
   };
 
   return (
-    <div className="flex min-w-[240px] items-center justify-center gap-2 whitespace-nowrap">
+    <div className="flex w-full items-center justify-center gap-2 whitespace-nowrap">
       {status === "Published" && (
         <button
           onClick={() => navigate(viewPath)}
-          className="px-3 py-1 text-sm font-semibold bg-sky-100 text-sky-700 rounded-lg hover:bg-sky-200 transition-colors"
+          className="px-2.5 py-1 text-xs font-semibold bg-sky-100 text-sky-700 rounded-lg hover:bg-sky-200 transition-colors"
           title="View Invoice"
         >
           View
@@ -322,31 +328,31 @@ export const InvoiceButtons = ({ _id, isPublished = false, onInvoicePublished })
       {status !== "Published" && (
         <button
           onClick={() => navigate(editPath)}
-          className="px-3 py-1 text-sm font-semibold bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-colors"
+          className="px-2.5 py-1 text-xs font-semibold bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-colors"
           title="Edit Invoice"
         >
           Edit
         </button>
       )}
 
-      {status !== "Published" && (
-        <button
-          onClick={handleDelete}
-          disabled={deleting}
-          className={`px-3 py-1 text-sm font-semibold rounded-lg transition-colors ${
-            deleting ? "bg-red-200 text-red-500" : "bg-red-100 text-red-700 hover:bg-red-200"
-          }`}
-          title="Delete Invoice"
-        >
-          {deleting ? "Deleting..." : "Delete"}
-        </button>
-      )}
+      <button
+        onClick={handleDelete}
+        disabled={deleting}
+        className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors ${
+          deleting
+            ? "bg-red-200 text-red-500"
+            : "bg-red-100 text-red-700 hover:bg-red-200"
+        }`}
+        title={status === "Published" ? "Try to delete published invoice" : "Delete Invoice"}
+      >
+        {deleting ? "Deleting..." : "Delete"}
+      </button>
 
       {status !== "Published" && (
         <button
           onClick={handleSubmit}
           disabled={loading || deleting}
-          className={`px-3 py-1 text-sm font-semibold rounded-lg transition-colors ${
+          className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors ${
             loading || deleting ? "bg-gray-300 text-gray-500" : "bg-blue-600 text-white hover:bg-blue-700"
           }`}
         >

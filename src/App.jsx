@@ -22,6 +22,7 @@ import EditUser from './components/user/editUser.jsx';
 import SellerList from './components/seller/sellerList.jsx';
 import AddSeller from './components/seller/addSeller.jsx';
 import EditSeller from './components/seller/editSeller.jsx';
+import SandboxPanel from './components/sandbox/SandboxPanel.jsx';
 
 
 function App() {
@@ -65,6 +66,8 @@ function App() {
           <Route path="/admin-dashboard/seller" element={<SellerList />}></Route>
           <Route path="/admin-dashboard/seller/add" element={<AddSeller />}></Route>
           <Route path="/admin-dashboard/seller/:id" element={<EditSeller />} />
+
+          <Route path="/admin-dashboard/sandbox" element={<SandboxPanel />}></Route>
 
           <Route path="/admin-dashboard/buyer/add/" element={<ListOfBuyer />}></Route>
           <Route path="/admin-dashboard/buyer/adding/" element={<AddBuyer />}></Route>

@@ -7,6 +7,7 @@ import {
   FaTimes,
   FaUsers,
   FaBuilding,
+  FaFlask,
 } from "react-icons/fa";
 
 const AdminSideBar = ({ isOpen, setIsOpen }) => {
@@ -67,6 +68,11 @@ const AdminSideBar = ({ isOpen, setIsOpen }) => {
           <NavLink to="/admin-dashboard/seller" className={linkClasses} onClick={() => setIsOpen(false)}>
             <FaBuilding className="w-5 h-5 text-slate-100 group-hover:text-white/95" />
             <span>Sellers</span>
+          </NavLink>
+
+          <NavLink to="/admin-dashboard/sandbox" className={linkClasses} onClick={() => setIsOpen(false)}>
+            <FaFlask className="w-5 h-5 text-slate-100 group-hover:text-white/95" />
+            <span>Sandbox</span>
           </NavLink>
         </nav>
 

@@ -61,7 +61,7 @@ const InvoiceList = () => {
             ...inv,
             sno: index + 1,
             invoicesId: inv._id,
-            invoiceNumber: inv.isPublished ? inv.invoiceNumber || inv?.fbrResponse?.invoiceNumber || "N/A" : "",
+            invoiceNumber: inv.isPublished ? inv.invoiceNumber || inv?.fbrResponse?.invoiceNumber || "N/A": "",
             qrValue: inv.invoiceNumber || inv?.fbrResponse?.invoiceNumber || inv._id,
             buyerBusinessName: inv.buyerBusinessName || "N/A",
             invoiceDate: inv.invoiceDate ? new Date(inv.invoiceDate).toLocaleDateString("en-GB") : "N/A",
