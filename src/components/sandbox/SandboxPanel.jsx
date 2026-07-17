@@ -620,7 +620,7 @@ const SandboxPanel = () => {
                       <option value="no levy" />
                       <option value="direct sale" />
                       <option value="retail sale" />
-                      <option value="differntial" />
+                      <option value="differential" />
                     </datalist>
                   </label>
                 )}
