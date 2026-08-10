@@ -23,6 +23,8 @@ import SellerList from './components/seller/sellerList.jsx';
 import AddSeller from './components/seller/addSeller.jsx';
 import EditSeller from './components/seller/editSeller.jsx';
 import SandboxPanel from './components/sandbox/SandboxPanel.jsx';
+import { LoaderCircle } from 'lucide-react';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 
 function App() {
@@ -31,19 +33,21 @@ function App() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-50">
+      <div className="flex h-screen items-center justify-center bg-background">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-600 font-medium">Loading...</p>
+          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-xl border bg-card shadow-sm">
+            <LoaderCircle className="size-5 animate-spin text-primary" />
+          </div>
+          <p className="text-sm font-medium text-muted-foreground">Loading your workspace...</p>
         </div>
       </div>
     );
   }
 
   return (
-   
-    <BrowserRouter>
-     <Routes>
+    <TooltipProvider>
+     <BrowserRouter>
+      <Routes>
       <Route path="/" element={<Navigate to={user ? homeRoute : "/login"} />}></Route>
       <Route path="/login" element={<Login/>}></Route>
       <Route path="/unauthorized" element={<Navigate to={user ? homeRoute : "/login"} />}></Route>
@@ -104,8 +108,9 @@ function App() {
           <Route path="/seller-dashboard/invoice/view/:id" element={<InvoicePdf />}></Route>
         </Route>
 
-     </Routes>
-    </BrowserRouter>
+      </Routes>
+     </BrowserRouter>
+    </TooltipProvider>
   );
 }
 

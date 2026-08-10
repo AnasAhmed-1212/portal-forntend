@@ -2,6 +2,9 @@ import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
+import { Eye, Pencil, Send, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 const REMOTE_API_BASE_URL = "https://portal-backend-dun.vercel.app";
 const LOCAL_API_BASE_URL = "http://localhost:2703";
@@ -61,13 +64,9 @@ export const invoiceColumns = [
     name: "Status",
     selector: (row) => row.status,
     cell: (row) => (
-      <span
-        className={`px-3 py-1 rounded-full text-xs font-bold ${
-          row.status === "Published" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
-        }`}
-      >
+      <Badge variant={row.status === "Published" ? "secondary" : "outline"} className={row.status === "Published" ? "text-emerald-700" : "text-amber-700"}>
         {row.status}
-      </span>
+      </Badge>
     ),
   },
   { name: "Scenario", selector: (row) => row.scenarioId },
@@ -180,50 +179,51 @@ export const InvoiceButtons = ({ _id, isPublished = false, onInvoicePublished })
   };
 
   return (
-    <div className="flex w-full items-center justify-center gap-2 whitespace-nowrap">
+    <div className="flex w-full items-center justify-center gap-1 whitespace-nowrap">
       {status === "Published" && (
-        <button
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
           onClick={() => navigate(viewPath)}
-          className="px-2.5 py-1 text-xs font-semibold bg-sky-100 text-sky-700 rounded-lg hover:bg-sky-200 transition-colors"
           title="View Invoice"
         >
-          View
-        </button>
+          <Eye /> View
+        </Button>
       )}
 
       {status !== "Published" && (
-        <button
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
           onClick={() => navigate(editPath)}
-          className="px-2.5 py-1 text-xs font-semibold bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-colors"
           title="Edit Invoice"
         >
-          Edit
-        </button>
+          <Pencil /> Edit
+        </Button>
       )}
 
-      <button
+      <Button
+        type="button"
+        variant="destructive"
+        size="sm"
         onClick={handleDelete}
         disabled={deleting}
-        className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors ${
-          deleting
-            ? "bg-red-200 text-red-500"
-            : "bg-red-100 text-red-700 hover:bg-red-200"
-        }`}
         title={status === "Published" ? "Try to delete published invoice" : "Delete Invoice"}
       >
-        {deleting ? "Deleting..." : "Delete"}
-      </button>
+        <Trash2 /> {deleting ? "Deleting..." : "Delete"}
+      </Button>
 
       {status !== "Published" && (
-        <button
+        <Button
+          type="button"
+          size="sm"
           onClick={handleSubmit}
           disabled={loading || deleting}
-          className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors ${
-            loading || deleting ? "bg-gray-300 text-gray-500" : "bg-blue-600 text-white hover:bg-blue-700"
-          }`}
         >
-          {loading ? "Publishing..." : "Publish"}
-        </button>
+          <Send /> {loading ? "Publishing..." : "Publish"}
+        </Button>
       )}
     </div>
   );

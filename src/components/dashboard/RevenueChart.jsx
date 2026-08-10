@@ -21,9 +21,11 @@ const buildSmoothPath = (points) => {
 };
 
 const RevenueChart = ({ series = [] }) => {
+  const gradientId = useId().replace(/:/g, "");
+
   if (!Array.isArray(series) || !series.length) {
     return (
-      <div className="h-72 flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-400 text-sm">
+      <div className="flex h-72 items-center justify-center rounded-xl border border-dashed bg-muted/35 text-sm text-muted-foreground">
         No revenue data available yet.
       </div>
     );
@@ -71,14 +73,13 @@ const RevenueChart = ({ series = [] }) => {
     return { y, value, id: `tick-${index}` };
   });
 
-  const gradientId = useId().replace(/:/g, "");
   const areaId = `revenue-area-${gradientId}`;
   const lineId = `revenue-line-${gradientId}`;
   const stemId = `revenue-stem-${gradientId}`;
   const glowId = `revenue-glow-${gradientId}`;
 
   return (
-    <div className="relative h-80 overflow-hidden rounded-2xl border border-cyan-100 bg-gradient-to-br from-white via-cyan-50 to-sky-100 px-4 py-4 sm:px-5">
+    <div className="relative h-80 overflow-hidden rounded-xl border bg-gradient-to-br from-background via-background to-primary/[0.06] px-4 py-4 sm:px-5">
       <div className="pointer-events-none absolute -top-16 right-4 h-40 w-40 rounded-full bg-cyan-300/40 blur-3xl" />
       <div className="pointer-events-none absolute bottom-0 left-1/3 h-28 w-48 rounded-full bg-sky-300/20 blur-3xl" />
 

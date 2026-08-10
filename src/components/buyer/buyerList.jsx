@@ -2,13 +2,13 @@
 
 
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import DataTable from "react-data-table-component";
 import axios from "axios";
 import { buyerColumns, BuyerButtons } from "../../utils/BuyerHelper.jsx";
 import { customTableStyles } from "../../utils/tableStyles";
-import { FaPlus, FaSearch, FaFileExport } from "react-icons/fa";
 import { useAuth } from "../../context/authContext.jsx";
+import EntityListPage from "../shared/EntityListPage.jsx";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const BuyerList = () => {
   const { user } = useAuth();
@@ -84,74 +84,29 @@ const BuyerList = () => {
     setFilteredBuyers(filtered);
   };
 
+  if (loading) {
+    return <div className="page-shell"><div className="page-container space-y-4"><Skeleton className="h-20" /><Skeleton className="h-14" /><Skeleton className="h-96" /></div></div>;
+  }
+
   return (
-    <>
-      {loading ? (
-        <div className="flex justify-center items-center min-h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-      ) : (
-        <div className="p-4 lg:p-6 min-h-screen bg-slate-50">
-
-          {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            <div>
-              <h3 className="text-2xl lg:text-3xl font-bold text-gray-800">
-                Manage Buyers
-              </h3>
-              <p className="text-sm text-slate-500 mt-1">Add, edit, and manage your buyer information.</p>
-            </div>
-
-            <Link
-              to={addBuyerPath}
-              className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-95 text-sm"
-            >
-              <FaPlus className="mr-2" />
-              Add New Buyer
-            </Link>
-          </div>
-
-          {/* Search and Actions */}
-          <div className="bg-white p-4 rounded-xl shadow-sm mb-6">
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-              <div className="relative w-full md:w-96">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                  <FaSearch className="w-4 h-4" />
-                </span>
-                <input
-                  type="text"
-                  placeholder="Search buyers..."
-                  className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
-                  onChange={filterBuyers}
-                />
-              </div>
-              <div className="flex items-center gap-3 w-full md:w-auto">
-                <button className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all w-full md:w-auto justify-center">
-                  <FaFileExport className="w-4 h-4" />
-                  Export
-                </button>
-                <Link to={addBuyerPath} className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg text-sm font-semibold w-full md:w-auto">
-                  <FaPlus className="w-4 h-4" />
-                  Add
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Table */}
-          <div className="bg-white p-4 rounded-xl shadow-sm overflow-hidden">
-            <DataTable
-              columns={buyerColumns}
-              data={filteredBuyers}
-              pagination
-              highlightOnHover
-              customStyles={customTableStyles}
-              responsive
-            />
-          </div>
-        </div>
-      )}
-    </>
+    <EntityListPage
+      eyebrow="Buyer setup"
+      title="Manage buyers"
+      description="Add, edit, and manage buyer information used on invoices."
+      addLabel="Add buyer"
+      addPath={addBuyerPath}
+      searchPlaceholder="Search buyers..."
+      onSearch={filterBuyers}
+    >
+      <DataTable
+        columns={buyerColumns}
+        data={filteredBuyers}
+        pagination
+        highlightOnHover
+        customStyles={customTableStyles}
+        responsive
+      />
+    </EntityListPage>
   );
 };
 

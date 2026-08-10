@@ -4,8 +4,12 @@ import DataTable from "react-data-table-component";
 import axios from "axios";
 import { invoiceColumns, InvoiceButtons } from "../../utils/InvoiceHelper.jsx";
 import { customTableStyles } from "../../utils/tableStyles";
-import { FaPlus, FaFileExport, FaSearch } from "react-icons/fa";
 import { useAuth } from "../../context/authContext";
+import { Plus, Search } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 const REMOTE_API_BASE_URL = "https://portal-backend-dun.vercel.app";
 const API_BASE_URLS = [...new Set([import.meta.env.VITE_API_URL, REMOTE_API_BASE_URL].filter(Boolean))];
@@ -115,61 +119,45 @@ const InvoiceList = () => {
   }, [invoices]);
 
   return (
-    <div className="p-4 lg:p-8 min-h-screen bg-slate-50">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div className="page-shell">
+      <div className="page-container">
+        <div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <h3 className="text-2xl lg:text-3xl font-extrabold text-slate-800 tracking-tight">Invoices History</h3>
-            <p className="text-sm text-slate-500 mt-1">Manage and track your generated sales invoices.</p>
+            <Badge variant="secondary" className="mb-3">Digital invoicing</Badge>
+            <h1 className="page-heading">Invoice history</h1>
+            <p className="page-description">Manage and track generated sales tax invoices.</p>
           </div>
-          <Link
-            to={addInvoicePath}
-            className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-95 text-sm"
-          >
-            <FaPlus className="mr-2" />
-            Create New Invoice
-          </Link>
+          <Button asChild size="lg" className="h-10"><Link to={addInvoicePath}><Plus />Create invoice</Link></Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 lg:gap-6 mb-8">
-          <div className="bg-white p-4 lg:p-6 rounded-2xl border border-slate-100 shadow-sm">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Invoices</p>
-            <h4 className="text-2xl lg:text-3xl font-black text-slate-800 mt-1">{stats.totalInvoices}</h4>
-          </div>
-          <div className="bg-white p-4 lg:p-6 rounded-2xl border border-slate-100 shadow-sm">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Not Published</p>
-            <h4 className="text-2xl lg:text-3xl font-black text-amber-600 mt-1">{stats.unpublishedCount}</h4>
-          </div>
-          <div className="bg-white p-4 lg:p-6 rounded-2xl border border-slate-100 shadow-sm">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Published</p>
-            <h4 className="text-2xl lg:text-3xl font-black text-green-600 mt-1">{stats.publishedCount}</h4>
-          </div>
-          <div className="bg-white p-4 lg:p-6 rounded-2xl border border-slate-100 shadow-sm">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Revenue</p>
-            <h4 className="text-xl lg:text-2xl font-black text-slate-800 mt-1">PKR {stats.totalRevenue.toLocaleString()}</h4>
-          </div>
+        <div className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            ["Total invoices", stats.totalInvoices, "text-foreground"],
+            ["Not published", stats.unpublishedCount, "text-amber-600"],
+            ["Published", stats.publishedCount, "text-emerald-600"],
+            ["Revenue", `PKR ${stats.totalRevenue.toLocaleString()}`, "text-primary"],
+          ].map(([label, value, color]) => (
+            <Card key={label} className="gap-0 py-0"><CardContent className="p-4">
+              <p className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">{label}</p>
+              <p className={`mt-1 text-2xl font-semibold tracking-tight ${color}`}>{value}</p>
+            </CardContent></Card>
+          ))}
         </div>
 
-        <div className="bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.02)] border border-slate-100 overflow-hidden">
-          <div className="p-4 lg:p-6 border-b border-slate-50 flex flex-col md:flex-row gap-4 items-center justify-between bg-white">
-            <div className="relative w-full md:w-96">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                <FaSearch className="w-4 h-4" />
-              </span>
-              <input
-                type="text"
+        <Card className="gap-0 overflow-hidden py-0">
+          <CardContent className="border-b p-4">
+            <div className="relative w-full md:max-w-md">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="search"
                 placeholder="Search by buyer, type, or ID..."
-                className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                className="h-10 pl-9"
                 onChange={filterData}
               />
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all w-full md:w-auto justify-center">
-              <FaFileExport className="w-4 h-4" />
-              Export CSV
-            </button>
-          </div>
+          </CardContent>
 
-          <div className="p-2">
+          <CardContent className="p-2">
             <DataTable
               columns={invoiceColumns}
               data={filtered}
@@ -212,8 +200,8 @@ const InvoiceList = () => {
               }}
               responsive
             />
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

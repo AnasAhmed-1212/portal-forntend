@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import SummaryCard from "./SummaryCard";
 import { FaFileInvoice, FaFileInvoiceDollar, FaStore, FaUserCheck, FaUsers } from "react-icons/fa";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const AdminSummary = () => {
   const [loading, setLoading] = useState(true);
@@ -66,25 +68,35 @@ const AdminSummary = () => {
 
   if (loading) {
     return (
-      <div className="p-6 min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-slate-500">Loading dashboard...</div>
+      <div className="page-shell" aria-live="polite" aria-busy="true">
+        <div className="page-container space-y-6">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-4 w-80 max-w-full" />
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <Skeleton key={index} className="h-24 rounded-xl" />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="p-4 lg:p-6 min-h-screen bg-slate-50">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div className="page-shell">
+      <div className="page-container">
+      <div className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <h3 className="text-2xl lg:text-3xl font-extrabold text-slate-900">Dashboard Overview</h3>
-          <p className="text-sm text-slate-500 mt-1">Invoices, sellers and user activity</p>
+          <Badge variant="secondary" className="mb-3">Administration</Badge>
+          <h1 className="page-heading">Dashboard overview</h1>
+          <p className="page-description">Invoices, sellers, and user activity across the portal.</p>
         </div>
-        <div className="text-sm text-slate-500">
-          Total invoices: <span className="font-semibold text-slate-700">{stats.totalInvoices}</span>
-        </div>
+        <Badge variant="outline" className="w-fit py-1.5">{stats.totalInvoices} total invoices</Badge>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6 mb-6">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <SummaryCard
           icon={<FaFileInvoice className="text-white text-2xl" />}
           text="Invoices Not Published"
@@ -115,6 +127,7 @@ const AdminSummary = () => {
           number={stats.activeUsers}
           bgColor="bg-gradient-to-br from-green-500 to-emerald-600"
         />
+      </div>
       </div>
     </div>
   );

@@ -1,6 +1,8 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext.jsx";
+import { Pencil, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 /* ==============================
    TABLE COLUMNS FOR BUYER
@@ -77,22 +79,26 @@ export const BuyerButtons = ({ _id, onBuyerDelete }) => {
   };
 
   return (
-    <div className="flex gap-2 justify-center">
-      {/* EDIT */}
-      <button
+    <div className="flex justify-center gap-1">
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
         onClick={() => navigate(`${basePath}/${_id}`)}
-        className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
+        title="Edit buyer"
       >
-        Edit
-      </button>
+        <Pencil /> Edit
+      </Button>
 
-      {/* DELETE */}
-      <button
+      <Button
+        type="button"
+        variant="destructive"
+        size="sm"
         onClick={() => handleDelete(_id)}
-        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
+        title="Delete buyer"
       >
-        Delete
-      </button>
+        <Trash2 /> Delete
+      </Button>
     </div>
   );
 };

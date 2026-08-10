@@ -209,9 +209,9 @@ const AddItems = () => {
   };
 
   return (
-    <div className="p-4 lg:p-6 min-h-[calc(100vh-4rem)] bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
-      <div className="w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 lg:p-10">
-        <h3 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-8">Add Item</h3>
+    <div className="legacy-form page-shell flex items-center justify-center">
+      <div className="surface-card w-full max-w-4xl p-6 lg:p-10">
+        <h3 className="page-heading mb-8">Add Item</h3>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>

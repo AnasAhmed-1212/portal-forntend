@@ -5,6 +5,11 @@ import { useAuth } from "../../context/authContext.jsx";
 import SummaryCard from "./SummaryCard.jsx";
 import RevenueChart from "./RevenueChart.jsx";
 import { FaDollarSign, FaFileInvoice, FaFileInvoiceDollar, FaUsers, FaBox } from "react-icons/fa";
+import { ArrowRight, CircleCheck, Plus } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const SellerSummary = () => {
   const { user } = useAuth();
@@ -55,41 +60,38 @@ const SellerSummary = () => {
 
   if (loading) {
     return (
-      <div className="p-6 animate-pulse" aria-live="polite" aria-busy="true">
-        <div className="mb-6">
-          <div className="h-8 w-72 bg-slate-200 rounded-lg mb-3"></div>
-          <div className="h-4 w-64 bg-slate-200 rounded"></div>
+      <div className="page-shell" aria-live="polite" aria-busy="true">
+        <div className="page-container space-y-6">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-72 max-w-full" />
+            <Skeleton className="h-4 w-80 max-w-full" />
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} className="h-24 rounded-xl" />)}
+          </div>
+          <Skeleton className="h-80 rounded-xl" />
+          <div className="grid gap-4 md:grid-cols-2">
+            <Skeleton className="h-56 rounded-xl" />
+            <Skeleton className="h-56 rounded-xl" />
+          </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6 mb-6">
-          <div className="h-28 rounded-2xl bg-slate-200"></div>
-          <div className="h-28 rounded-2xl bg-slate-200"></div>
-          <div className="h-28 rounded-2xl bg-slate-200"></div>
-        </div>
-
-        <div className="h-72 rounded-2xl bg-slate-200 mb-6"></div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="h-56 rounded-2xl bg-slate-200"></div>
-          <div className="h-56 rounded-2xl bg-slate-200"></div>
-        </div>
-
-        <p className="mt-6 text-sm text-slate-500">Loading seller dashboard...</p>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-slate-900">Welcome back, {user?.name || "Seller"}!</h1>
-        <p className="text-sm text-slate-500 mt-1">Your seller account dashboard is updated dynamically.</p>
+    <div className="page-shell">
+      <div className="page-container">
+      <div className="mb-7">
+        <Badge variant="secondary" className="mb-3">Seller workspace</Badge>
+        <h1 className="page-heading">Welcome back, {user?.name || "Seller"}</h1>
+        <p className="page-description">Here is the latest activity for your digital invoicing account.</p>
         {user?.sellerId && (
-          <p className="text-sm text-blue-600 mt-1">Business: {user.sellerId.sellerBusinessName || "Your Company"}</p>
+          <p className="mt-2 text-sm font-medium text-primary">{user.sellerId.sellerBusinessName || "Your Company"}</p>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6 mb-6">
+      <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <SummaryCard
           icon={<FaDollarSign className="text-white text-2xl" />}
           text="Total Revenue"
@@ -110,51 +112,55 @@ const SellerSummary = () => {
         />
       </div>
 
-      <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="text-lg font-semibold text-slate-800">Revenue Chart</h4>
-          <div className="text-sm text-slate-500">Last 6 months</div>
-        </div>
-        <RevenueChart series={stats.revenueSeries} />
+      <Card className="mb-6">
+        <CardHeader className="border-b">
+          <CardTitle>Revenue trend</CardTitle>
+          <CardDescription>Invoice revenue over the last six months.</CardDescription>
+        </CardHeader>
+        <CardContent><RevenueChart series={stats.revenueSeries} /></CardContent>
+      </Card>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader><CardTitle>Quick actions</CardTitle><CardDescription>Common seller tasks.</CardDescription></CardHeader>
+          <CardContent className="grid gap-2">
+            {[
+              ["/seller-dashboard/invoice/add", "Create new invoice"],
+              ["/seller-dashboard/buyer/adding", "Add new buyer"],
+              ["/seller-dashboard/items/add", "Add new item"],
+            ].map(([to, label]) => (
+              <Button key={to} asChild variant="outline" className="h-11 justify-start gap-3 px-3">
+                <Link to={to}><Plus className="text-primary" />{label}<ArrowRight className="ml-auto text-muted-foreground" /></Link>
+              </Button>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle>Account summary</CardTitle><CardDescription>Current workspace configuration.</CardDescription></CardHeader>
+          <CardContent className="space-y-4 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-2 text-muted-foreground"><FaFileInvoice /> Total invoices</span>
+              <span className="font-semibold">{stats.totalInvoices}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-2 text-muted-foreground"><FaUsers /> Total buyers</span>
+              <span className="font-semibold">{stats.totalBuyers}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-2 text-muted-foreground"><FaBox /> Total items</span>
+              <span className="font-semibold">{stats.totalItems}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">FBR token</span>
+              <Badge variant={user?.sellerId?.fbrToken ? "secondary" : "outline"}>
+                {user?.sellerId?.fbrToken && <CircleCheck className="size-3" />}
+                {user?.sellerId?.fbrToken ? "Configured" : "Not set"}
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h3>
-          <div className="space-y-3">
-            <Link to="/seller-dashboard/invoice/add" className="block p-3 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition">
-              + Create New Invoice
-            </Link>
-            <Link to="/seller-dashboard/buyer/adding" className="block p-3 rounded-lg bg-purple-50 text-purple-700 hover:bg-purple-100 transition">
-              + Add New Buyer
-            </Link>
-            <Link to="/seller-dashboard/items/add" className="block p-3 rounded-lg bg-orange-50 text-orange-700 hover:bg-orange-100 transition">
-              + Add New Item
-            </Link>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">Summary</h3>
-          <div className="space-y-3 text-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-slate-500 flex items-center gap-2"><FaFileInvoice /> Total Invoices</span>
-              <span className="font-medium text-slate-900">{stats.totalInvoices}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-slate-500 flex items-center gap-2"><FaUsers /> Total Buyers</span>
-              <span className="font-medium text-slate-900">{stats.totalBuyers}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-slate-500 flex items-center gap-2"><FaBox /> Total Items</span>
-              <span className="font-medium text-slate-900">{stats.totalItems}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-slate-500">FBR Token</span>
-              <span className="font-medium text-slate-900">{user?.sellerId?.fbrToken ? "Configured" : "Not Set"}</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

@@ -100,11 +100,11 @@ const AddBuyer = () => {
   };
 
   return (
-    <div className="p-4 lg:p-6 min-h-[calc(100vh-4rem)] bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
-      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 lg:p-8">
+    <div className="legacy-form page-shell flex items-center justify-center">
+      <div className="surface-card w-full max-w-2xl p-6 lg:p-8">
         
         <div className="mb-6 text-center">
-          <h3 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-1">
+          <h3 className="page-heading mb-1">
             Add Buyer
           </h3>
           <p className="text-slate-600">Create a new buyer profile</p>

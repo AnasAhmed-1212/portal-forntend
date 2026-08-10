@@ -447,8 +447,8 @@
     }
 
     return (
-      <div className="p-4 lg:p-6 bg-slate-50 min-h-screen">
-        <form onSubmit={handleSubmit} className="bg-white shadow-sm rounded-xl border border-slate-200">
+      <div className="legacy-form page-shell">
+        <form onSubmit={handleSubmit} className="surface-card mx-auto max-w-7xl overflow-hidden">
           <div className="p-4 lg:p-6 border-b border-slate-100 bg-slate-50/50">
             <h2 className="text-xl lg:text-2xl font-bold text-slate-800 flex items-center gap-2">
               {isEditMode ? "Edit Invoice" : "Create Sale Invoice"}

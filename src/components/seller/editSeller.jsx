@@ -95,7 +95,7 @@ const EditSeller = () => {
   }
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
+    <div className="legacy-form page-shell"><div className="mx-auto max-w-2xl">
       {/* Header */}
       <div className="mb-6">
         <button
@@ -112,7 +112,7 @@ const EditSeller = () => {
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <form onSubmit={handleSubmit} className="surface-card p-6">
         {/* Business Name */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -286,7 +286,7 @@ const EditSeller = () => {
           </button>
         </div>
       </form>
-    </div>
+    </div></div>
   );
 };
 

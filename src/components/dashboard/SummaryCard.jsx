@@ -1,30 +1,21 @@
 import React from "react";
+import { Activity } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
-const SummaryCard = ({ icon, text, number, bgColor }) => {
-  return (
-    <div className="bg-white rounded-2xl shadow-xl p-4 lg:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-
-      <div className="flex items-center gap-4">
-        <div className={`p-3 lg:p-4 rounded-xl flex items-center justify-center ${bgColor} shadow-md`}>
-          {icon}
-        </div>
-
-        <div>
-          <p className="text-slate-500 text-sm">{text}</p>
-          <div className="mt-1 text-2xl lg:text-3xl font-extrabold text-slate-900">{number}</div>
-        </div>
+const SummaryCard = ({ icon, text, number, bgColor }) => (
+  <Card className="gap-0 py-0 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+    <CardContent className="flex items-center gap-4 p-5">
+      <div className={`flex size-11 shrink-0 items-center justify-center rounded-xl shadow-sm ${bgColor}`}>{icon}</div>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">{text}</p>
+        <p className="mt-1 truncate text-2xl font-semibold tracking-tight text-foreground">{number}</p>
       </div>
-
-      <div className="flex flex-row sm:flex-col items-center sm:items-end gap-1 sm:gap-0">
-        <span className="text-xs text-slate-400">vs last period</span>
-        <div className="inline-flex items-center gap-1 text-sm text-green-600 font-semibold">
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 19V6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M19 12l-7-7-7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          +3.8%
-        </div>
+      <div className="hidden items-center gap-1 text-[11px] text-muted-foreground sm:flex">
+        <Activity className="size-3.5 text-emerald-600" />
+        Live
       </div>
-
-    </div>
-  );
-};
+    </CardContent>
+  </Card>
+);
 
 export default SummaryCard;

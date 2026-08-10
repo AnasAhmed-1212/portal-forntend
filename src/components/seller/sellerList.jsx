@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import DataTable from "react-data-table-component";
 import axios from "axios";
-import { FaPlus, FaSearch, FaEdit, FaTrash, FaToggleOn, FaToggleOff } from "react-icons/fa";
+import { FaEdit, FaTrash, FaToggleOn, FaToggleOff } from "react-icons/fa";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import EntityListPage from "../shared/EntityListPage.jsx";
 
 const SellerList = () => {
   const [sellers, setSellers] = useState([]);
@@ -137,15 +141,9 @@ const SellerList = () => {
     {
       name: "Status",
       selector: (row) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-semibold ${
-            row.isActive
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-700"
-          }`}
-        >
+        <Badge variant={row.isActive ? "secondary" : "destructive"}>
           {row.isActive ? "Active" : "Inactive"}
-        </span>
+        </Badge>
       ),
     },
     {
@@ -155,29 +153,26 @@ const SellerList = () => {
     {
       name: "Actions",
       cell: (row) => (
-        <div className="flex gap-2">
-          <Link
-            to={`/admin-dashboard/seller/${row._id}`}
-            className="p-2 bg-blue-100 text-blue-600 rounded hover:bg-blue-200"
-          >
-            <FaEdit />
-          </Link>
-          <button
+        <div className="flex gap-1">
+          <Button asChild variant="ghost" size="icon-sm"><Link to={`/admin-dashboard/seller/${row._id}`} title="Edit seller"><FaEdit /></Link></Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
             onClick={() => handleToggleStatus(row._id)}
-            className={`p-2 rounded ${
-              row.isActive
-                ? "bg-red-100 text-red-600 hover:bg-red-200"
-                : "bg-green-100 text-green-600 hover:bg-green-200"
-            }`}
+            title={row.isActive ? "Deactivate seller" : "Activate seller"}
           >
             {row.isActive ? <FaToggleOff /> : <FaToggleOn />}
-          </button>
-          <button
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            size="icon-sm"
             onClick={() => handleDelete(row._id)}
-            className="p-2 bg-red-100 text-red-600 rounded hover:bg-red-200"
+            title="Delete seller"
           >
             <FaTrash />
-          </button>
+          </Button>
         </div>
       ),
       width: "150px",
@@ -185,63 +180,28 @@ const SellerList = () => {
   ];
 
   return (
-    <div className="p-4 lg:p-6 min-h-screen bg-slate-50">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-        <div>
-          <h3 className="text-2xl lg:text-3xl font-bold text-gray-800">
-            Seller Management
-          </h3>
-          <p className="text-sm text-slate-500 mt-1">
-            Manage sellers and assign FBR tokens
-          </p>
-        </div>
-
-        <Link
-          to="/admin-dashboard/seller/add"
-          className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-95 text-sm"
-        >
-          <FaPlus className="mr-2" />
-          Add New Seller
-        </Link>
-      </div>
-
-      {/* Search */}
-      <div className="bg-white p-4 rounded-xl shadow-sm mb-6">
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="relative w-full md:w-96">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-              <FaSearch className="w-4 h-4" />
-            </span>
-            <input
-              type="text"
-              placeholder="Search sellers..."
-              className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
-              onChange={filterSellers}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className="bg-white p-4 rounded-xl shadow-sm overflow-hidden">
-        {loading ? (
-          <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 text-slate-500">
-            <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
-            <p className="text-sm font-medium">Loading sellers...</p>
-          </div>
-        ) : (
-          <DataTable
-            columns={columns}
-            data={filteredSellers}
-            pagination
-            highlightOnHover
-            responsive
-            noDataComponent={<div className="py-8 text-slate-500">No sellers found.</div>}
-          />
-        )}
-      </div>
-    </div>
+    <EntityListPage
+      eyebrow="Seller setup"
+      title="Seller management"
+      description="Manage seller profiles, access status, and FBR token assignments."
+      addLabel="Add seller"
+      addPath="/admin-dashboard/seller/add"
+      searchPlaceholder="Search sellers..."
+      onSearch={filterSellers}
+    >
+      {loading ? (
+        <div className="space-y-2 p-3">{Array.from({ length: 6 }).map((_, index) => <Skeleton key={index} className="h-12" />)}</div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={filteredSellers}
+          pagination
+          highlightOnHover
+          responsive
+          noDataComponent={<div className="py-8 text-muted-foreground">No sellers found.</div>}
+        />
+      )}
+    </EntityListPage>
   );
 };
 

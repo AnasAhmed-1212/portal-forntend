@@ -2,6 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { FaPlus, FaEdit, FaTrash, FaUserShield, FaToggleOn, FaToggleOff, FaSearch } from "react-icons/fa";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
@@ -111,155 +118,77 @@ const UserList = () => {
   ];
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">User Management</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Manage users and assign sellers
-        </p>
-      </div>
-
-      {/* Actions Bar */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-        {/* Search */}
-        <div className="relative w-full md:w-96">
-          <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search users..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
-          />
+    <div className="page-shell">
+      <div className="page-container">
+        <div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <div>
+            <Badge variant="secondary" className="mb-3">Access control</Badge>
+            <h1 className="page-heading">User management</h1>
+            <p className="page-description">Manage portal users and their assigned seller accounts.</p>
+          </div>
+          <Button asChild size="lg" className="h-10"><Link to="/admin-dashboard/users/add"><FaPlus />Add user</Link></Button>
         </div>
 
-        {/* Add User Button */}
-        <Link
-          to="/admin-dashboard/users/add"
-          className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-95 text-sm"
-        >
-          <FaPlus className="mr-2" />
-          Add User
-        </Link>
-      </div>
+        <Card className="mb-4 gap-0 py-0">
+          <CardContent className="p-4">
+            <div className="relative w-full md:max-w-md">
+              <FaSearch className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search users..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="h-10 pl-9"
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Users Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        {loading ? (
-          <div className="p-8 text-center text-slate-500">Loading...</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50 border-b border-slate-200">
-                <tr>
-                  {columns.map((col, index) => (
-                    <th
-                      key={index}
-                      className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"
-                    >
-                      {col.name}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {filteredUsers.length === 0 ? (
-                  <tr>
-                    <td colSpan={columns.length} className="px-6 py-8 text-center text-slate-500">
-                      No users found
-                    </td>
-                  </tr>
-                ) : (
-                  filteredUsers.map((user) => (
-                    <tr key={user._id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                        {user.sno}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+        <Card className="gap-0 overflow-hidden py-0">
+          <CardContent className="p-0">
+            {loading ? (
+              <div className="space-y-2 p-5">{Array.from({ length: 5 }).map((_, index) => <Skeleton key={index} className="h-12" />)}</div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>{columns.map((column) => <TableHead key={column.name}>{column.name}</TableHead>)}</TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredUsers.length === 0 ? (
+                    <TableRow><TableCell colSpan={columns.length} className="h-32 text-center text-muted-foreground">No users found.</TableCell></TableRow>
+                  ) : filteredUsers.map((user) => (
+                    <TableRow key={user._id}>
+                      <TableCell className="text-muted-foreground">{user.sno}</TableCell>
+                      <TableCell>
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white text-sm font-medium">
-                            {user.name.charAt(0).toUpperCase()}
-                          </div>
-                          <span className="text-sm font-medium text-slate-900">{user.name}</span>
+                          <Avatar size="sm"><AvatarFallback className="bg-primary text-xs text-primary-foreground">{user.name.charAt(0).toUpperCase()}</AvatarFallback></Avatar>
+                          <span className="font-medium">{user.name}</span>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                        {user.email}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
-                          user.role === "admin" 
-                            ? "bg-purple-100 text-purple-700" 
-                            : "bg-blue-100 text-blue-700"
-                        }`}>
-                          {user.role === "admin" && <FaUserShield className="w-3 h-3" />}
-                          {user.role}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">{user.email}</TableCell>
+                      <TableCell><Badge variant="outline" className="capitalize">{user.role === "admin" && <FaUserShield />}{user.role}</Badge></TableCell>
+                      <TableCell>
                         {user.sellerId ? (
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-slate-700">{user.sellerBusinessName}</span>
-                            {user.sellerIsActive ? (
-                              <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                            ) : (
-                              <span className="w-2 h-2 rounded-full bg-red-500" title="Seller Inactive"></span>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-sm text-slate-400 italic">Not Assigned</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${
-                          user.isActive
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                        }`}>
-                          {user.isActive ? "Active" : "Inactive"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          {/* Toggle Status */}
-                          <button
-                            onClick={() => handleToggleStatus(user._id)}
-                            className={`p-2 rounded-lg transition-colors ${
-                              user.isActive
-                                ? "text-green-600 hover:bg-green-50"
-                                : "text-red-600 hover:bg-red-50"
-                            }`}
-                            title={user.isActive ? "Deactivate" : "Activate"}
-                          >
-                            {user.isActive ? <FaToggleOn className="w-5 h-5" /> : <FaToggleOff className="w-5 h-5" />}
-                          </button>
-                          
-                          {/* Edit */}
-                          <Link
-                            to={`/admin-dashboard/users/${user._id}`}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                            title="Edit"
-                          >
-                            <FaEdit className="w-4 h-4" />
-                          </Link>
-                          
-                          {/* Delete */}
-                          <button
-                            onClick={() => handleDelete(user._id)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Delete"
-                          >
-                            <FaTrash className="w-4 h-4" />
-                          </button>
+                          <div className="flex items-center gap-2"><span>{user.sellerBusinessName}</span><span className={`size-2 rounded-full ${user.sellerIsActive ? "bg-emerald-500" : "bg-destructive"}`} /></div>
+                        ) : <span className="text-muted-foreground">Not assigned</span>}
+                      </TableCell>
+                      <TableCell><Badge variant={user.isActive ? "secondary" : "destructive"}>{user.isActive ? "Active" : "Inactive"}</Badge></TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Button type="button" variant="ghost" size="icon-sm" onClick={() => handleToggleStatus(user._id)} title={user.isActive ? "Deactivate" : "Activate"}>
+                            {user.isActive ? <FaToggleOn className="text-emerald-600" /> : <FaToggleOff className="text-destructive" />}
+                          </Button>
+                          <Button asChild variant="ghost" size="icon-sm"><Link to={`/admin-dashboard/users/${user._id}`} title="Edit"><FaEdit /></Link></Button>
+                          <Button type="button" variant="destructive" size="icon-sm" onClick={() => handleDelete(user._id)} title="Delete"><FaTrash /></Button>
                         </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

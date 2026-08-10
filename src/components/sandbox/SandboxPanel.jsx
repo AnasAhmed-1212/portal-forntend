@@ -65,9 +65,8 @@ const petroleumProductDescriptions = [
   "Motor Gasoline/ Motor Spirit (92 RON)",
 ];
 
-const fieldClass =
-  "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
-const labelClass = "mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500";
+const fieldClass = "form-control";
+const labelClass = "mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground";
 
 const readableMessage = (value) => {
   if (typeof value === "string") return value;
@@ -418,13 +417,13 @@ const SandboxPanel = () => {
   }
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+    <div className="legacy-form page-shell page-container space-y-6">
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <div className="flex items-center gap-3">
           <div className="rounded-xl bg-blue-100 p-3 text-blue-700"><FaFlask /></div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">FBR Sandbox</h1>
-            <p className="text-sm text-slate-500">Assign a seller and token once, then reuse those seller fields in every selected scenario.</p>
+            <h1 className="page-heading">FBR Sandbox</h1>
+            <p className="page-description">Assign a seller and token once, then reuse those seller fields in every selected scenario.</p>
           </div>
         </div>
         {selectedSeller?.isAssigned && (
@@ -441,7 +440,7 @@ const SandboxPanel = () => {
       )}
 
       <div className="grid gap-5 xl:grid-cols-[320px_minmax(0,1fr)]">
-        <aside className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <aside className="surface-card p-4">
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h2 className="font-bold text-slate-900">Sandbox Sellers</h2>
@@ -466,7 +465,7 @@ const SandboxPanel = () => {
           </div>
         </aside>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="surface-card p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="font-bold text-slate-900">{selectedSellerId ? "Sandbox Seller Details" : "Add Sandbox Seller"}</h2>
@@ -495,7 +494,7 @@ const SandboxPanel = () => {
       </div>
 
       {!selectedSeller?.isAssigned ? (
-        <section className="rounded-2xl border border-amber-200 bg-amber-50 p-8 text-center">
+          <section className="rounded-xl border border-amber-200 bg-amber-50 p-8 text-center">
           <FaLock className="mx-auto mb-3 text-2xl text-amber-500" />
           <h2 className="font-bold text-amber-900">Scenarios are locked</h2>
           <p className="mt-1 text-sm text-amber-700">Add or select an assigned sandbox seller to show SN001–SN028.</p>
@@ -503,7 +502,7 @@ const SandboxPanel = () => {
       ) : (
         <>
           <section className="grid gap-5 xl:grid-cols-[320px_minmax(0,1fr)]">
-            <aside className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <aside className="surface-card p-4">
               <div className="mb-4 flex items-center justify-between">
                 <div>
                   <h2 className="font-bold text-slate-900">Sandbox Buyers</h2>
@@ -524,7 +523,7 @@ const SandboxPanel = () => {
               </div>
             </aside>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="surface-card p-5">
               <div className="mb-4">
                 <h2 className="font-bold text-slate-900">{selectedBuyerId ? "Sandbox Buyer Details" : "Add Sandbox Buyer"}</h2>
                 <p className="text-xs text-slate-500">Save the FBR test buyer once, then select it from the list for any scenario.</p>
@@ -547,7 +546,7 @@ const SandboxPanel = () => {
             </div>
           </section>
 
-          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <section className="surface-card p-5">
             <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
               <div>
                 <h2 className="font-bold text-slate-900">Select Scenario to Clear</h2>
@@ -574,7 +573,7 @@ const SandboxPanel = () => {
           </section>
 
           {selectedScenario && (
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <section className="surface-card p-5">
               <div className="mb-4">
                 <h2 className="font-bold text-slate-900">Selected: {selectedScenario.id} — {selectedScenario.title}</h2>
                 <p className="text-xs text-slate-500">Review the item before validating or clearing this scenario.</p>

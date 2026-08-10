@@ -1,33 +1,21 @@
-import React, { useState } from "react";
+import React from "react";
 import AdminSideBar from "../components/dashboard/AdminSideBar.jsx";
 import Navbar from "../components/dashboard/Navbar.jsx";
 import { Outlet } from "react-router-dom";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 
 const AdminDashboard = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Mobile Sidebar Overlay */}
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-      
-      {/* Sidebar */}
-      <AdminSideBar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
-      
-      {/* Main Content */}
-      <div className="lg:ml-72">
-        <Navbar setSidebarOpen={setSidebarOpen} />
-        <main className="pt-16 min-h-screen">
+    <SidebarProvider className="max-w-full overflow-x-hidden">
+      <AdminSideBar />
+      <SidebarInset className="min-w-0 max-w-full overflow-x-hidden">
+        <Navbar />
+        <div className="min-h-[calc(100svh-4rem)] min-w-0 max-w-full">
           <Outlet />
-        </main>
-      </div>
-    </div>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 };
 
