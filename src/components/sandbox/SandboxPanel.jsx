@@ -609,18 +609,14 @@ const SandboxPanel = () => {
                   <label className="sm:col-span-2 lg:col-span-4">
                     <span className={labelClass}>Petroleum Levy On</span>
                     <input
-                      list="petroleum-levy-options"
+                      type="number"
+                      min="0"
+                      step="any"
                       className={fieldClass}
-                      value={itemForm.petroleumLevyOn || ""}
+                      value={itemForm.petroleumLevyOn ?? 0}
                       onChange={(event) => updateItem("petroleumLevyOn", event.target.value)}
-                      placeholder="Select or type a petroleum levy option"
+                      placeholder="0 means no levy"
                     />
-                    <datalist id="petroleum-levy-options">
-                      <option value="no levy" />
-                      <option value="direct sale" />
-                      <option value="retail sale" />
-                      <option value="differential" />
-                    </datalist>
                   </label>
                 )}
               </div>

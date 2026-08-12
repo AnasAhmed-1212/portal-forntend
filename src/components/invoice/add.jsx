@@ -23,7 +23,7 @@
     sroScheduleNo: "",
     sroItemSerialNo: "",
     fedPayable: 0,
-    petroleumLevyOn: "",
+    petroleumLevyOn: 0,
   };
 
   const productDescriptionOptions = [
@@ -31,13 +31,11 @@
     "Motor Gasoline/ Motor Spirit (92 RON)",
   ];
 
-  const petroleumLevyOptions = [
-    { value: "no levy", label: "No Levy" },
-    { value: "direct sale", label: "Direct Sale" },
-    { value: "retail sale", label: "Retail Sale" },
-    { value: "differential", label: "Differential" },
-  ];
-  const petroleumLevyValues = petroleumLevyOptions.map((option) => option.value);
+  const normalizePetroleumLevy = (value) => {
+    if (String(value || "").trim().toLowerCase() === "no levy") return 0;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : "";
+  };
 
   const isPetroleumItem = (item, scenarioId) =>
     scenarioId === "SN012" ||
@@ -201,7 +199,7 @@
                 sroScheduleNo: item.sroScheduleNo || "",
                 sroItemSerialNo: item.sroItemSerialNo || "",
                 fedPayable: Number(item.fedPayable) || 0,
-                petroleumLevyOn: item.petroleumLevyOn || "",
+                petroleumLevyOn: normalizePetroleumLevy(item.petroleumLevyOn),
               };
             });
 
@@ -291,8 +289,8 @@
         sroItemSerialNo: selectedItem.sroItem || "",
         petroleumLevyOn:
           String(selectedItem.itemSaleType || "").trim().toLowerCase() === "petroleum products"
-            ? newItems[index].petroleumLevyOn || "no levy"
-            : "",
+            ? normalizePetroleumLevy(newItems[index].petroleumLevyOn)
+            : 0,
       };
       updateItemCalculations(newItems, index);
     };
@@ -356,10 +354,10 @@
         invoice.items.some(
           (item) =>
             isPetroleumItem(item, invoice.scenarioId) &&
-            !petroleumLevyValues.includes(item.petroleumLevyOn)
+            (!Number.isFinite(Number(item.petroleumLevyOn)) || Number(item.petroleumLevyOn) < 0)
         )
       ) {
-        return alert("Select a Petroleum Levy Rate for every Petroleum Products item.");
+        return alert("Enter a valid Petroleum Levy On quantity for every Petroleum Products item.");
       }
 
       const fbrPayload = {
@@ -407,7 +405,7 @@
               : itm.itemSaleType || "Goods at standard rate (default)",
             sroItemSerialNo: itm.sroItemSerialNo || "",
             ...(isPetroleumItem(itm, invoice.scenarioId)
-              ? { petroleumLevyOn: itm.petroleumLevyOn }
+              ? { petroleumLevyOn: Number(itm.petroleumLevyOn) }
               : {}),
           };
         }),
@@ -499,19 +497,19 @@
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase">
-                  Petroleum Levy Rate (Item {activeItemIndex + 1})
+                  Petroleum Levy On (Item {activeItemIndex + 1})
                 </label>
-                <select
+                <input
+                  type="number"
+                  min="0"
+                  step="any"
                   required={isPetroleumItem(invoice.items[activeItemIndex], invoice.scenarioId)}
-                  value={invoice.items[activeItemIndex]?.petroleumLevyOn || ""}
+                  value={invoice.items[activeItemIndex]?.petroleumLevyOn ?? 0}
                   onChange={(e) => handleRowChange(activeItemIndex, "petroleumLevyOn", e.target.value)}
                   className="w-full mt-1 p-2 lg:p-3 border border-slate-300 rounded-lg text-sm"
-                >
-                  <option value="">Select Petroleum Levy Rate</option>
-                  {petroleumLevyOptions.map((option) => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                  ))}
-                </select>
+                  placeholder="0 means no levy"
+                />
+                <p className="mt-1 text-xs text-slate-500">Enter the quantity subject to levy; use 0 for no levy.</p>
               </div>
             </div>
 
