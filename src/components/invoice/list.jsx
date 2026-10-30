@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../lib/api";
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import DataTable from "react-data-table-component";
@@ -11,30 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
-const REMOTE_API_BASE_URL = "https://portal-backend-dun.vercel.app";
-const API_BASE_URLS = [...new Set([import.meta.env.VITE_API_URL, REMOTE_API_BASE_URL].filter(Boolean))];
+const requestWithFallback = (requestFactory) => requestFactory(API_BASE_URL);
 
-const shouldFallbackToNextBase = (error) => {
-  const status = error?.response?.status;
-  return !error?.response || status === 404 || status >= 500;
-};
-
-const requestWithFallback = async (requestFactory) => {
-  let lastError;
-
-  for (const baseUrl of API_BASE_URLS) {
-    try {
-      return await requestFactory(baseUrl);
-    } catch (error) {
-      lastError = error;
-      if (!shouldFallbackToNextBase(error) || baseUrl === API_BASE_URLS[API_BASE_URLS.length - 1]) {
-        throw error;
-      }
-    }
-  }
-
-  throw lastError;
-};
 
 const InvoiceList = () => {
   const { user } = useAuth();

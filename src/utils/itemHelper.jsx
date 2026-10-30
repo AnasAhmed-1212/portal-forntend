@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../lib/api";
 // itemHelper.jsx
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -35,7 +36,7 @@ export const ItemButtons = ({ _id, onItemsDelete }) => {
     if (confirmDelete) {
       try {
         const response = await axios.delete(
-          `https://portal-backend-dun.vercel.app/api/items/item/${id}`,
+          `${API_BASE_URL}/api/items/item/${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,

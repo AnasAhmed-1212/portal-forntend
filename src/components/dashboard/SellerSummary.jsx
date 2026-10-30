@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../lib/api";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -31,9 +32,9 @@ const SellerSummary = () => {
         const headers = { Authorization: `Bearer ${token}` };
 
         const [dashboardRes, buyerRes, itemRes] = await Promise.all([
-          axios.get("https://portal-backend-dun.vercel.app/api/create/stats/dashboard", { headers }),
-          axios.get("https://portal-backend-dun.vercel.app/api/buyer/", { headers }),
-          axios.get("https://portal-backend-dun.vercel.app/api/items/add", { headers }),
+          axios.get(`${API_BASE_URL}/api/create/stats/dashboard`, { headers }),
+          axios.get(`${API_BASE_URL}/api/buyer/`, { headers }),
+          axios.get(`${API_BASE_URL}/api/items/add`, { headers }),
         ]);
 
         if (dashboardRes.data.success) {
@@ -153,9 +154,9 @@ const SellerSummary = () => {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">FBR token</span>
-              <Badge variant={user?.sellerId?.fbrToken ? "secondary" : "outline"}>
-                {user?.sellerId?.fbrToken && <CircleCheck className="size-3" />}
-                {user?.sellerId?.fbrToken ? "Configured" : "Not set"}
+              <Badge variant={user?.sellerId?.hasFbrToken ? "secondary" : "outline"}>
+                {user?.sellerId?.hasFbrToken && <CircleCheck className="size-3" />}
+                {user?.sellerId?.hasFbrToken ? "Configured" : "Not set"}
               </Badge>
             </div>
           </CardContent>

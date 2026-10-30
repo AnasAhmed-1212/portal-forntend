@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../lib/api";
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -28,7 +29,7 @@ const BuyerEdit = () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `https://portal-backend-dun.vercel.app/api/buyer/${id}`,
+          `${API_BASE_URL}/api/buyer/${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -65,7 +66,7 @@ const BuyerEdit = () => {
 
     try {
       const response = await axios.put(
-        `https://portal-backend-dun.vercel.app/api/buyer/${id}`,
+        `${API_BASE_URL}/api/buyer/${id}`,
         buyer,
         {
           headers: {

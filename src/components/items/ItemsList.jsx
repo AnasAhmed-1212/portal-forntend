@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../lib/api";
 import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import axios from "axios";
@@ -28,7 +29,7 @@ const ItemsList = () => {
     const fetchItems = async () => {
       try {
         const response = await axios.get(
-          "https://portal-backend-dun.vercel.app/api/items/add",
+          `${API_BASE_URL}/api/items/add`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,

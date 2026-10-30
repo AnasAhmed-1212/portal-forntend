@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../lib/api";
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -27,7 +28,7 @@ const EditSeller = () => {
   const fetchSeller = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`https://portal-backend-dun.vercel.app/api/seller/${id}`, {
+      const response = await axios.get(`${API_BASE_URL}/api/seller/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -42,7 +43,7 @@ const EditSeller = () => {
           sellerAddress: seller.sellerAddress || "",
           sellerEmail: seller.sellerEmail || "",
           sellerPhone: seller.sellerPhone || "",
-          fbrToken: seller.fbrToken || "",
+          fbrToken: "",
           isActive: seller.isActive ?? true,
         });
       }
@@ -69,7 +70,7 @@ const EditSeller = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.put(`https://portal-backend-dun.vercel.app/api/seller/${id}`, formData, {
+      const response = await axios.put(`${API_BASE_URL}/api/seller/${id}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -236,20 +237,20 @@ const EditSeller = () => {
         {/* FBR Token */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-slate-700 mb-2">
-            FBR API Token <span className="text-red-500">*</span>
+            FBR API Token (replacement only)
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <FaKey className="text-slate-400" />
             </div>
             <input
-              type="text"
+              type="password"
+              autoComplete="new-password"
               name="fbrToken"
               value={formData.fbrToken}
               onChange={handleChange}
-              required
               className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
-              placeholder="Enter FBR API token"
+              placeholder="Leave blank to keep the saved token"
             />
           </div>
         </div>

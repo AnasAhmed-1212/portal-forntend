@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../lib/api";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import DataTable from "react-data-table-component";
@@ -17,7 +18,7 @@ const SellerList = () => {
   useEffect(() => {
     const fetchSellers = async () => {
       try {
-        const response = await axios.get("https://portal-backend-dun.vercel.app/api/seller/", {
+        const response = await axios.get(`${API_BASE_URL}/api/seller/`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -52,7 +53,7 @@ const SellerList = () => {
   const handleToggleStatus = async (id) => {
     try {
       const response = await axios.put(
-        `https://portal-backend-dun.vercel.app/api/seller/${id}/toggle-status`,
+        `${API_BASE_URL}/api/seller/${id}/toggle-status`,
         {},
         {
           headers: {
@@ -83,7 +84,7 @@ const SellerList = () => {
     
     try {
       const response = await axios.delete(
-        `https://portal-backend-dun.vercel.app/api/seller/${id}`,
+        `${API_BASE_URL}/api/seller/${id}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

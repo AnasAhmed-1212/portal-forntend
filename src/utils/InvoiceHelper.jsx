@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../lib/api";
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -6,31 +7,8 @@ import { Eye, Pencil, Send, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-const REMOTE_API_BASE_URL = "https://portal-backend-dun.vercel.app";
-const LOCAL_API_BASE_URL = "http://localhost:2703";
-const API_BASE_URLS = [...new Set([import.meta.env.VITE_API_URL, LOCAL_API_BASE_URL, REMOTE_API_BASE_URL].filter(Boolean))];
+const requestWithFallback = (requestFactory) => requestFactory(API_BASE_URL);
 
-const shouldFallbackToNextBase = (error) => {
-  const status = error?.response?.status;
-  return !error?.response || status === 404 || status >= 500;
-};
-
-const requestWithFallback = async (requestFactory) => {
-  let lastError;
-
-  for (const baseUrl of API_BASE_URLS) {
-    try {
-      return await requestFactory(baseUrl);
-    } catch (error) {
-      lastError = error;
-      if (!shouldFallbackToNextBase(error) || baseUrl === API_BASE_URLS[API_BASE_URLS.length - 1]) {
-        throw error;
-      }
-    }
-  }
-
-  throw lastError;
-};
 
 /* ==============================
    TABLE COLUMNS FOR INVOICE

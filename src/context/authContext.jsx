@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../lib/api";
 import axios from "axios";
 import React, {
   createContext,
@@ -18,7 +19,7 @@ const AuthContext = ({children}) => {
       try {
          const token = localStorage.getItem('token')
          if(token){
-         const response = await axios.get('https://portal-backend-dun.vercel.app/api/auth/verify' , {
+         const response = await axios.get(`${API_BASE_URL}/api/auth/verify` , {
           headers:{
             "Authorization": `Bearer ${token}`
           }

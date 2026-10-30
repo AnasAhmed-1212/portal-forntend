@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../lib/api";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -31,7 +32,7 @@ const AddSeller = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.post("https://portal-backend-dun.vercel.app/api/seller/add", formData, {
+      const response = await axios.post(`${API_BASE_URL}/api/seller/add`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -197,7 +198,8 @@ const AddSeller = () => {
               <FaKey className="text-slate-400" />
             </div>
             <input
-              type="text"
+              type="password"
+              autoComplete="new-password"
               name="fbrToken"
               value={formData.fbrToken}
               onChange={handleChange}

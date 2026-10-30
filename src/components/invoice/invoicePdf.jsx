@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../lib/api";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -149,7 +150,7 @@ const InvoicePdf = () => {
     const fetchInvoiceData = async () => {
       try {
         setErrorMessage("");
-        const response = await axios.get(`https://portal-backend-dun.vercel.app/api/create/${id}`, {
+        const response = await axios.get(`${API_BASE_URL}/api/create/${id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },

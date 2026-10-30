@@ -1,3 +1,6 @@
+import { API_BASE_URL } from "../../lib/api";
+import { getFbrReference } from "../../lib/api";
+import SellerAssignmentSelect from "../shared/SellerAssignmentSelect";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -8,6 +11,7 @@ import { useAuth } from "../../context/authContext";
 const AddItems = () => {
   const { user } = useAuth();
   const [item, setItem] = useState({
+    sellerId: "",
     itemName: "",
     sellingPrice: "",
     hsCode: "",
@@ -43,7 +47,7 @@ const AddItems = () => {
   const itemsListPath = isAdmin ? "/admin-dashboard/items" : "/seller-dashboard/items";
   
   // FBR token must come only from assigned seller
-  const FBR_TOKEN = user?.sellerId?.fbrToken || "";
+  const referenceSellerId = user?.role === "admin" ? item.sellerId : user?.sellerId?._id;
 
   const getFbrDate = () => {
     const d = new Date();
@@ -54,35 +58,31 @@ const AddItems = () => {
   // 1. Fetch HS Codes
   useEffect(() => {
     const fetchHsCodes = async () => {
-      if (!FBR_TOKEN) {
+      if (!referenceSellerId) {
         setHsCodes([]);
         return;
       }
       try {
         setLoadingHs(true);
-        const response = await axios.get("https://gw.fbr.gov.pk/pdi/v1/itemdesccode", {
-          headers: { Authorization: `Bearer ${FBR_TOKEN}` },
-        });
+        const response = await getFbrReference("v1/itemdesccode", referenceSellerId);
         const apiData = response.data?.data || response.data || [];
         setHsCodes(apiData.map(code => ({ value: code.hS_CODE, label: `${code.hS_CODE} - ${code.description}` })));
       } catch (error) { console.error("HS Code Error:", error); }
       finally { setLoadingHs(false); }
     };
     fetchHsCodes();
-  }, [FBR_TOKEN]);
+  }, [referenceSellerId]);
 
   // 2. Fetch Sale Types
   useEffect(() => {
     const fetchSaleTypes = async () => {
-      if (!FBR_TOKEN) {
+      if (!referenceSellerId) {
         setSaleTypeOptions([]);
         return;
       }
       try {
         setLoadingSaleType(true);
-        const response = await axios.get("https://gw.fbr.gov.pk/pdi/v1/transtypecode", {
-          headers: { Authorization: `Bearer ${FBR_TOKEN}` },
-        });
+        const response = await getFbrReference("v1/transtypecode", referenceSellerId);
         const apiData = response.data?.data || response.data || [];
         setSaleTypeOptions(apiData.map(type => ({ 
           value: type.transactioN_DESC, 
@@ -93,7 +93,7 @@ const AddItems = () => {
       finally { setLoadingSaleType(false); }
     };
     fetchSaleTypes();
-  }, [FBR_TOKEN]);
+  }, [referenceSellerId]);
 
   // 3. UOM Fetch
   useEffect(() => {
@@ -101,9 +101,7 @@ const AddItems = () => {
       if (!item.hsCode) return;
       try {
         setLoadingUom(true);
-        const response = await axios.get(`https://gw.fbr.gov.pk/pdi/v2/HS_UOM?hs_code=${item.hsCode}&annexure_id=3`, {
-          headers: { Authorization: `Bearer ${FBR_TOKEN}` }
-        });
+        const response = await getFbrReference(`v2/HS_UOM?hs_code=${item.hsCode}&annexure_id=3`, referenceSellerId);
         const uomData = response.data?.data || response.data || [];
         const formatted = uomData.map(u => ({ value: u.description, label: u.description }));
         setUomOptions(formatted);
@@ -112,7 +110,7 @@ const AddItems = () => {
       finally { setLoadingUom(false); }
     };
     fetchUOM();
-  }, [item.hsCode, FBR_TOKEN]);
+  }, [item.hsCode, referenceSellerId]);
 
   // 4. Tax Rate Fetch
   useEffect(() => {
@@ -120,17 +118,14 @@ const AddItems = () => {
       if (!internalSaleTypeId) return;
       try {
         setLoadingTax(true);
-        const response = await axios.get(
-          `https://gw.fbr.gov.pk/pdi/v2/SaleTypeToRate?date=${getFbrDate()}&transTypeId=${internalSaleTypeId}&originationSupplier=${internalSaleTypeId}`,
-          { headers: { Authorization: `Bearer ${FBR_TOKEN}` } }
-        );
+        const response = await getFbrReference(`v2/SaleTypeToRate?date=${getFbrDate()}&transTypeId=${internalSaleTypeId}&originationSupplier=${internalSaleTypeId}`, referenceSellerId);
         const apiData = response.data?.data || response.data || [];
         setTaxRateOptions(apiData.map(rate => ({ value: rate.ratE_DESC, label: rate.ratE_DESC, rateId: rate.ratE_ID })));
       } catch (error) { console.error("Tax Rate Error:", error); }
       finally { setLoadingTax(false); }
     };
     fetchTaxRates();
-  }, [internalSaleTypeId, FBR_TOKEN]);
+  }, [internalSaleTypeId, referenceSellerId]);
 
   // 5. SRO Schedule Fetch
   useEffect(() => {
@@ -138,17 +133,14 @@ const AddItems = () => {
       if (!selectedRateId) { setSroScheduleOptions([]); return; }
       try {
         setLoadingSro(true);
-        const response = await axios.get(
-          `https://gw.fbr.gov.pk/pdi/v1/SroSchedule?rate_id=${selectedRateId}&date=${getFbrDate()}&origination_supplier_csv=1`,
-          { headers: { Authorization: `Bearer ${FBR_TOKEN}` } }
-        );
+        const response = await getFbrReference(`v1/SroSchedule?rate_id=${selectedRateId}&date=${getFbrDate()}&origination_supplier_csv=1`, referenceSellerId);
         const apiData = response.data?.data || response.data || [];
         setSroScheduleOptions(apiData.map(sro => ({ value: sro.srO_DESC, label: sro.srO_DESC, sroId: sro.srO_ID })));
       } catch (error) { console.error("SRO Schedule Error:", error); }
       finally { setLoadingSro(false); }
     };
     fetchSroSchedules();
-  }, [selectedRateId, FBR_TOKEN]);
+  }, [selectedRateId, referenceSellerId]);
 
   // 6. SRO Item Fetch
   useEffect(() => {
@@ -157,17 +149,14 @@ const AddItems = () => {
       try {
         setLoadingSroItem(true);
         const isoDate = new Date().toISOString().split('T')[0];
-        const response = await axios.get(
-          `https://gw.fbr.gov.pk/pdi/v2/SROItem?date=${isoDate}&sro_id=${selectedSroId}`,
-          { headers: { Authorization: `Bearer ${FBR_TOKEN}` } }
-        );
+        const response = await getFbrReference(`v2/SROItem?date=${isoDate}&sro_id=${selectedSroId}`, referenceSellerId);
         const apiData = response.data?.data || response.data || [];
         setSroItemOptions(apiData.map(si => ({ value: si.srO_ITEM_DESC, label: si.srO_ITEM_DESC })));
       } catch (error) { console.error("SRO Item Error:", error); }
       finally { setLoadingSroItem(false); }
     };
     fetchSroItems();
-  }, [selectedSroId, FBR_TOKEN]);
+  }, [selectedSroId, referenceSellerId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -191,7 +180,7 @@ const AddItems = () => {
         taxRate: formattedTaxRate // Now sends "18" or "Exempt" as a String
       };
 
-      const response = await axios.post("https://portal-backend-dun.vercel.app/api/items/add", payload, {
+      const response = await axios.post(`${API_BASE_URL}/api/items/add`, payload, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
 
@@ -214,6 +203,7 @@ const AddItems = () => {
         <h3 className="page-heading mb-8">Add Item</h3>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {user?.role === "admin" && <SellerAssignmentSelect value={item.sellerId} onChange={(sellerId) => setItem((prev) => ({ ...prev, sellerId }))} />}
           <div>
             <label className="block font-semibold mb-2 text-sm">Item Name</label>
             <input name="itemName" value={item.itemName} onChange={handleChange} required className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg outline-none focus:border-blue-500" />

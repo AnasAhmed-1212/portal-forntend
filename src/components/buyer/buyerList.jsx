@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../lib/api";
 
 
 
@@ -28,7 +29,7 @@ const BuyerList = () => {
     const fetchBuyers = async () => {
       try {
         const response = await axios.get(
-          "https://portal-backend-dun.vercel.app/api/buyer/",
+          `${API_BASE_URL}/api/buyer/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,

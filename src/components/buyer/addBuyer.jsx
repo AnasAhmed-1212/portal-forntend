@@ -1,3 +1,6 @@
+import { API_BASE_URL } from "../../lib/api";
+import { getFbrReference } from "../../lib/api";
+import SellerAssignmentSelect from "../shared/SellerAssignmentSelect";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -8,6 +11,7 @@ import { useAuth } from "../../context/authContext";
 const AddBuyer = () => {
   const { user } = useAuth();
   const [buyer, setBuyer] = useState({
+    sellerId: "",
     buyerName: "",
     buyerBusinessName: "",
     ntnNumber: "",
@@ -26,19 +30,17 @@ const AddBuyer = () => {
   const buyerListPath = isAdmin ? "/admin-dashboard/buyer/add/" : "/seller-dashboard/buyer/add/";
   
   // FBR token must come only from assigned seller
-  const FBR_TOKEN = user?.sellerId?.fbrToken || "";
+  const referenceSellerId = user?.role === "admin" ? buyer.sellerId : user?.sellerId?._id;
   
   useEffect(() => {
     const fetchProvinces = async () => {
-      if (!FBR_TOKEN) {
+      if (!referenceSellerId) {
         setProvinceOptions([]);
         return;
       }
       try {
         setIsLoadingProvinces(true);
-        const response = await axios.get("https://gw.fbr.gov.pk/pdi/v1/provinces", {
-          headers: { Authorization: `Bearer ${FBR_TOKEN}` },
-        });
+        const response = await getFbrReference("v1/provinces", referenceSellerId);
 
         // FIXED: Added more robust data checking for FBR API response
         const apiData = response.data?.data || response.data || [];
@@ -57,7 +59,7 @@ const AddBuyer = () => {
     };
 
     fetchProvinces();
-  }, [FBR_TOKEN]);
+  }, [referenceSellerId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -68,7 +70,7 @@ const AddBuyer = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "https://portal-backend-dun.vercel.app/api/buyer/",
+        `${API_BASE_URL}/api/buyer/`,
         buyer,
         {
           headers: {
@@ -112,6 +114,7 @@ const AddBuyer = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          {user?.role === "admin" && <SellerAssignmentSelect value={buyer.sellerId} onChange={(sellerId) => setBuyer((prev) => ({ ...prev, sellerId }))} />}
           {/* Buyer Name */}
           <div>
             <label className="block text-gray-700 font-medium mb-1">Buyer Name</label>

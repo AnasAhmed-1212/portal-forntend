@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../lib/api";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext.jsx";
@@ -59,7 +60,7 @@ export const BuyerButtons = ({ _id, onBuyerDelete }) => {
     if (confirmDelete) {
       try {
         const response = await axios.delete(
-          `https://portal-backend-dun.vercel.app/api/buyer/${id}`,
+          `${API_BASE_URL}/api/buyer/${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,

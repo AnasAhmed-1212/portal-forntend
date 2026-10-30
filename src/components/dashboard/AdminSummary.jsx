@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../lib/api";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import SummaryCard from "./SummaryCard";
@@ -23,9 +24,9 @@ const AdminSummary = () => {
         const headers = { Authorization: `Bearer ${token}` };
 
         const [dashboardRes, usersRes, sellersRes] = await Promise.allSettled([
-          axios.get("https://portal-backend-dun.vercel.app/api/create/stats/dashboard", { headers }),
-          axios.get("https://portal-backend-dun.vercel.app/api/user/all", { headers }),
-          axios.get("https://portal-backend-dun.vercel.app/api/seller/", { headers }),
+          axios.get(`${API_BASE_URL}/api/create/stats/dashboard`, { headers }),
+          axios.get(`${API_BASE_URL}/api/user/all`, { headers }),
+          axios.get(`${API_BASE_URL}/api/seller/`, { headers }),
         ]);
 
         const nextStats = {

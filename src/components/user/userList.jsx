@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../lib/api";
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -23,7 +24,7 @@ const UserList = () => {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("https://portal-backend-dun.vercel.app/api/user/all", {
+      const response = await axios.get(`${API_BASE_URL}/api/user/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -55,7 +56,7 @@ const UserList = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.put(
-        `https://portal-backend-dun.vercel.app/api/user/${id}/toggle-status`,
+        `${API_BASE_URL}/api/user/${id}/toggle-status`,
         {},
         {
           headers: {
@@ -83,7 +84,7 @@ const UserList = () => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.delete(`https://portal-backend-dun.vercel.app/api/user/${id}`, {
+      const response = await axios.delete(`${API_BASE_URL}/api/user/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

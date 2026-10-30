@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../lib/api";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import {
@@ -13,7 +14,6 @@ import {
 } from "react-icons/fa";
 import { sandboxScenarios } from "./sandboxScenarios.js";
 
-const API_BASE_URL = "https://portal-backend-dun.vercel.app";
 const provinces = [
   "Punjab",
   "Sindh",

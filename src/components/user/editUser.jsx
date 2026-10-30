@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../lib/api";
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -27,7 +28,7 @@ const EditUser = () => {
   const fetchSellers = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("https://portal-backend-dun.vercel.app/api/user/sellers-for-assignment", {
+      const response = await axios.get(`${API_BASE_URL}/api/user/sellers-for-assignment`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -45,7 +46,7 @@ const EditUser = () => {
       const token = localStorage.getItem("token");
       
       // Get all users and find the one we need
-      const response = await axios.get("https://portal-backend-dun.vercel.app/api/user/all", {
+      const response = await axios.get(`${API_BASE_URL}/api/user/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -110,7 +111,7 @@ const EditUser = () => {
         userData.password = formData.password;
       }
 
-      const response = await axios.put(`https://portal-backend-dun.vercel.app/api/user/${id}`, userData, {
+      const response = await axios.put(`${API_BASE_URL}/api/user/${id}`, userData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

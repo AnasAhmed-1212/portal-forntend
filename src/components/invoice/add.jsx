@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../lib/api";
   import React, { useState, useEffect, useMemo } from "react";
   import { useNavigate, useParams } from "react-router-dom";
   import axios from "axios";
@@ -134,8 +135,8 @@
           if (isEditMode) setLoadingInvoice(true);
 
           const [buyerRes, itemRes] = await Promise.all([
-            axios.get("https://portal-backend-dun.vercel.app/api/buyer/", { headers }),
-            axios.get("https://portal-backend-dun.vercel.app/api/items/add", { headers }),
+            axios.get(`${API_BASE_URL}/api/buyer/`, { headers }),
+            axios.get(`${API_BASE_URL}/api/items/add`, { headers }),
           ]);
 
           const buyersData = buyerRes.data?.success ? buyerRes.data.data : [];
@@ -145,13 +146,13 @@
 
           let sellersData = [];
           if (isAdmin) {
-            const sellerRes = await axios.get("https://portal-backend-dun.vercel.app/api/seller/", { headers });
+            const sellerRes = await axios.get(`${API_BASE_URL}/api/seller/`, { headers });
             sellersData = sellerRes.data?.success ? sellerRes.data.data : [];
             setSellers(sellersData);
           }
 
           if (isEditMode) {
-            const invoiceRes = await axios.get(`https://portal-backend-dun.vercel.app/api/create/${id}`, { headers });
+            const invoiceRes = await axios.get(`${API_BASE_URL}/api/create/${id}`, { headers });
             if (!invoiceRes.data?.success) return;
 
             const existingInvoice = invoiceRes.data.data;
@@ -420,12 +421,12 @@
 
       try {
         if (isEditMode) {
-          await axios.put(`https://portal-backend-dun.vercel.app/api/create/${id}`, localPayload, {
+          await axios.put(`${API_BASE_URL}/api/create/${id}`, localPayload, {
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
           });
           alert("Invoice updated successfully");
         } else {
-          await axios.post("https://portal-backend-dun.vercel.app/api/create/items", localPayload, {
+          await axios.post(`${API_BASE_URL}/api/create/items`, localPayload, {
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
           });
           alert("Invoice saved successfully");

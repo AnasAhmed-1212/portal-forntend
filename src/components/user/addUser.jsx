@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../../lib/api";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -24,7 +25,7 @@ const AddUser = () => {
   const fetchSellers = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("https://portal-backend-dun.vercel.app/api/user/sellers-for-assignment", {
+      const response = await axios.get(`${API_BASE_URL}/api/user/sellers-for-assignment`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -64,7 +65,7 @@ const AddUser = () => {
         sellerId: formData.role === "admin" ? null : formData.sellerId || null,
       };
 
-      const response = await axios.post("https://portal-backend-dun.vercel.app/api/user/", userData, {
+      const response = await axios.post(`${API_BASE_URL}/api/user/`, userData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
