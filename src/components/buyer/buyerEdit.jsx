@@ -120,15 +120,15 @@ const BuyerEdit = () => {
           {/* NTN */}
           <div>
             <label className="block text-gray-700 font-medium mb-1">
-              NTN Number
+              NTN/CNIC {buyer.registrationType === "Unregistered" ? "(Optional)" : "(Required for registered buyers)"}
             </label>
             <input
               name="ntnNumber"
-              value={buyer.ntnNumber}
+              value={buyer.ntnNumber || ""}
               onChange={handleChange}
               type="text"
               className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white focus:shadow-lg focus:shadow-blue-500/10 transition duration-200"
-              required
+              required={buyer.registrationType === "Registered"}
             />
           </div>
 

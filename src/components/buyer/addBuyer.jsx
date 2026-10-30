@@ -141,14 +141,14 @@ const AddBuyer = () => {
           </div>
 
           <div>
-            <label className="block text-gray-700 font-medium mb-1">NTN Number</label>
+            <label className="block text-gray-700 font-medium mb-1">NTN/CNIC {buyer.registrationType === "Unregistered" ? "(Optional)" : "(Required for registered buyers)"}</label>
             <input
               name="ntnNumber"
               type="text"
-              value={buyer.ntnNumber}
+              value={buyer.ntnNumber || ""}
               onChange={handleChange}
               placeholder="e.g. 1234567-8"
-              required
+              required={buyer.registrationType === "Registered"}
               className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-200"
             />
           </div>

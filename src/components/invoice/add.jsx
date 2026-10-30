@@ -78,7 +78,8 @@
     const formatTaxRate = (value) => {
       const rate = String(value ?? "").trim();
       if (!rate) return "0%";
-      return rate.includes("%") || rate.toLowerCase() === "exempt" ? rate : `${rate}%`;
+      if (/^exempt%?$/i.test(rate)) return "Exempt";
+      return /^\d+(?:\.\d+)?$/.test(rate) ? `${rate}%` : rate;
     };
 
     const scopedBuyers = useMemo(() => {
@@ -188,7 +189,7 @@
                 uoM: item.uoM || "",
                 quantity: qty,
                 rate: Number(derivedRate.toFixed(2)),
-                taxRate: parseTaxRate(item.rate),
+                taxRate: formatTaxRate(item.rate),
                 discount,
                 salesTaxApplicable: Number(item.salesTaxApplicable) || 0,
                 extraTax: item.extraTax === "" ? "" : Number(item.extraTax) || 0,
@@ -248,7 +249,7 @@
       const qty = Number(item.quantity) || 0;
       const rate = Number(item.rate) || 0;
       const disc = Number(item.discount) || 0;
-      const taxPrc = Number(item.taxRate) || 0;
+      const taxPrc = parseTaxRate(item.taxRate);
       const eTax = Number(item.extraTax) || 0;
       const fTax = Number(item.furtherTax) || 0;
 
@@ -621,7 +622,7 @@
                       <td className="p-1"><input type="number" value={itm.rate} onChange={(e) => handleRowChange(idx, "rate", e.target.value)} className="w-16 border p-1 rounded text-sm" /></td>
                       <td className="p-1"><input type="number" value={itm.discount} onChange={(e) => handleRowChange(idx, "discount", e.target.value)} className="w-14 border p-1 rounded text-sm" /></td>
                       <td className="p-1 font-medium">{itm.valueSalesExcludingST}</td>
-                      <td className="p-1 text-slate-400">{itm.taxRate}%</td>
+                      <td className="p-1 text-slate-400">{formatTaxRate(itm.taxRate)}</td>
                       <td className="p-1 text-blue-600 font-bold">{itm.salesTaxApplicable}</td>
                       <td className="p-1"><input type="number" value={itm.extraTax} onChange={(e) => handleRowChange(idx, "extraTax", e.target.value)} className="w-14 border p-1 rounded text-sm" /></td>
                       <td className="p-1"><input type="number" value={itm.furtherTax} onChange={(e) => handleRowChange(idx, "furtherTax", e.target.value)} className="w-14 border p-1 rounded text-sm" /></td>
